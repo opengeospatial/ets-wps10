@@ -2,7 +2,13 @@ WPS 1.0.0 Test Suite Release Notes
 
 Summary of Changes
 
-=== Changes included in R0 ===
+=== Changes in r1 ===
+
+- Updated config file for TEAM-Engine v4.
+- Fixed schema references (local copies added to classpath).
+
+
+=== Changes in r0 ===
 
 2012-04-16
 - first draft of the wps 1.0.0 test suite 
