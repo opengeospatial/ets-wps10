@@ -44,9 +44,9 @@
         <ctl:return>The Exception Code and Locator of an exception report</ctl:return>
         <ctl:code>
             <xsl:variable name="exceptionElement" select="$exceptionReport//ows:ExceptionReport/ows:Exception" />
-            <xsl:variable name="exceptionCodeValue" select="$exceptionElement/@exceptionCode" />
+            <xsl:variable name="exceptionCodeValue" select="wpsFunctions:exceptionCode($exceptionReport)" />
             <xsl:variable name="locatorValue" select="$exceptionElement/@locator" />
-            <xsl:value-of select="concat('Exception Report (exceptionCode, locator):  ',$exceptionCodeValue,',',$locatorValue)" />
+            <xsl:value-of select="concat('Exception Report (exceptionCode, locator):  ',string($exceptionCodeValue),',',$locatorValue)" />
         </ctl:code>
     </ctl:function>
 	
@@ -59,14 +59,14 @@
         <ctl:description></ctl:description>
         <ctl:code>
             <xsl:variable name="exceptionElement" select="$exceptionReport//ows:ExceptionReport/ows:Exception" />
-            <xsl:variable name="exceptionCodeValue" select="$exceptionElement/@exceptionCode" />
+            <xsl:variable name="exceptionCodeValue" select="wpsFunctions:exceptionCode($exceptionReport)" />
             <xsl:variable name="locatorValue" select="$exceptionElement/@locator" />
             <xsl:choose>
                 <xsl:when test="$locatorToCheck='*'">
-                    <xsl:value-of select="($exceptionCodeToCheck=$exceptionCodeValue)" />
+                    <xsl:value-of select="(contains(string($exceptionCodeValue), $exceptionCodeToCheck))" />
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:value-of select="($exceptionCodeToCheck=$exceptionCodeValue) and (contains(lower-case(string($locatorValue)), lower-case($locatorToCheck)))" />
+                    <xsl:value-of select="(contains(string($exceptionCodeValue), $exceptionCodeToCheck)) and (contains(lower-case(string($locatorValue)), lower-case($locatorToCheck)))" />
                 </xsl:otherwise>
             </xsl:choose>
         </ctl:code>
