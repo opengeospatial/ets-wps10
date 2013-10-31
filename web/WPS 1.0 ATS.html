@@ -569,7 +569,7 @@
                 <tr class="purpose">
                     <td class="rowhead">Test purpose</td>
                     <td>
-                        <p>Sending a request that is non-conformant to a schema associated with an WPS operation causes the server to return a valid error report message with an <code class="code">exceptionCode</code> value of InvalidRequest.</p>
+                        <p>Sending a request that is non-conformant to a schema associated with an WPS operation causes the server to return a valid error report message</p>
                     </td>
                 </tr>
                 <tr class="method">
@@ -744,11 +744,11 @@
         <tr class="purpose">
           <th>Test purpose</th>
 
-          <td>The server returns a valid error report message with an <code class="code">exceptionCode</code> of InvalidRequest when the request key value is not GetCapabilities.</td>
+          <td>The server returns a valid error report message with an <code class="code">exceptionCode</code> of OperationNotSupported when the request key value is not GetCapabilities.</td>
         </tr>
         <tr class="method">
           <th>Test method</th>
-          <td>Check the server returns a valid error report message with an <code class="code">exceptionCode</code> of InvalidRequest when the request key value is not WPS.  Pass if the server returns a valid error report message with an exception code of InvalideParameterValue; fail otherwise.</td>
+          <td>Check the server returns a valid error report message with an <code class="code">exceptionCode</code> of OperationNotSupported when the request key value is not WPS.  Pass if the server returns a valid error report message with an exception code of OperationNotSupported; fail otherwise.</td>
         </tr>
         <tr class="reference">
 
