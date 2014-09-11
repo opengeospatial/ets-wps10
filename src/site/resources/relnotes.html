@@ -1,0 +1,23 @@
+<h1> WPS 1.0.0 Test Suite Release Notes</h1>
+
+
+<h2>Changes in r2</h2>
+<ul>
+<li>wps:general-WPS.General-InvalidRequest.1 : this test do not longer require the exceptionCode to be 'InvalidRequest' </li>
+
+<li>getCapabilities:core-WPS.GetCapabilities-ResponseContentsValidProccesIdentifier.1 : this test do not longer require process identifier to be valid URN.</li>
+<li>The exceptionCode verification now works when the server return multiple more than one Exception element.</li>
+<li>getCapabilities:core-WPS.GetCapabilities-KVPRequestRequestParameterHandling.1 : now look for exceptionCode : 'OperationNotSupported' and locator: 'GetMeASandwich'</li>
+</ul>
+
+<h2>Changes in r1</h2>
+
+<ul>
+<li>Updated config file for TEAM-Engine v4.</li>
+<li>Fixed schema references (local copies added to classpath).</li>
+</ul>
+
+<h2>Changes in r0 </h2>
+<ul>
+<li>first draft of the wps 1.0.0 test suite </li>
+</ul>
