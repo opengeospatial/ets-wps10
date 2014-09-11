@@ -19,7 +19,7 @@ te_install=$base/teamengine/te_install
 
 current_dir_test=`pwd`
 
-# where the script exists
+# where the ETS tests scripts exists
 TE_BASE=$base/teamengine/TE_BASE
 
 if build_teamengine; then

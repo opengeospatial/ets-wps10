@@ -17,9 +17,10 @@ The OGC Web Processing Service 1.0.0 Test-Suite provides the Executable Test Scr
 
 ## Build
 
-You require TEAM Engine to build the test. 
-Instructions about how to build TEAM Engine and the test can be found [[here][https://github.com/opengeospatial/teamengine]].
+You require TEAMEngine to build the test. 
+Instructions about how to build TEAMEngine and the test can be found [here](https://github.com/opengeospatial/teamengine).
 
+An example file is here:
      
 ## Bugs
 
