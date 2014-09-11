@@ -1,6 +1,7 @@
 #!/bin/sh
-# Builds the test and teamengine for UNIX/OS
+# This is an example build of  the test to build  teamengine and the WPS test for UNIX/OS
 
+# change to true if teamengine is not installed in your system.
 build_teamengine=false
 
 # TEAM Engine tag from https://github.com/opengeospatial/teamengine
@@ -16,13 +17,10 @@ mkdir -p $base/teamengine/te_install
 folder_to_build=$base/teamengine/te_build
 te_install=$base/teamengine/te_install
 
-TE_BASE=$base/teamengine/TE_BASE
+current_dir_test=`pwd`
 
-########
-# build the test
-mvn install
-cd target 
-unzip ets-wps10-1.0.0-r3.zip -d $TE_BASE/scripts/
+# where the script exists
+TE_BASE=$base/teamengine/TE_BASE
 
 if build_teamengine; then
    #download and build TEAM Engine
@@ -35,12 +33,28 @@ if build_teamengine; then
    unzip $folder_to_build/teamengine/teamengine-console/target/teamengine-console-$te_tag-base.zip -d $TE_BASE
 fi   
 
+
+########
+# build the test
+
+cd $current_dir_test
+mvn install
+cd target 
+
+# will get the zip file containing the scripts
+ls *ctl.zip > temp_out
+zip_ctl_file=`grep ctl temp_out | grep zip | head -1`
+
+
+#  install the test scripts
+unzip -q -o $zip_ctl_file -d $TE_BASE/scripts
+
 echo "  "
 echo "-----------------   "
 echo "  "
 echo "Congratulations"
 echo "  "
-echo "TEAM Engine ($te_tag) and the ets-wps10-1.0.0-r3 have been installed."
+echo "TEAM Engine ($te_tag) and the ets-wps10-1.0.0 test have been installed."
 echo "  "
 echo " UNIX/OS users - You can run the test with the following commands: "
 echo "   export TE_BASE=$TE_BASE"
