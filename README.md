@@ -11,6 +11,9 @@ The OGC Web Processing Service 1.0.0 Test-Suite provides the Executable Test Scr
 
   * _Definition Identifier URNs in OGC Namespace_, Version 1.1.0 [[OGC 06-023r1]](http://portal.opengeospatial.org/files/?artifact_id=4700) (ISO/CD 19136, OGC 03-105r1)
 
+Detailed information about this test suite is available [here](http://opengeospatial.github.io/ets-wps10).
+
+
 ## License
 
 [Apache 2.0 License](LICENSE.md)
@@ -18,9 +21,9 @@ The OGC Web Processing Service 1.0.0 Test-Suite provides the Executable Test Scr
 ## Build
 
 You require TEAMEngine to build the test. 
-Instructions about how to build TEAMEngine and the test can be found [here](https://github.com/opengeospatial/teamengine).
 
-An example file is here:
+Follow the [TEAM ENGINE instructions](http://opengeospatial.github.io/teamengine/installation.html) to install and run the tests in TEAM ENGINE.
+
      
 ## Bugs
 
