@@ -48,7 +48,7 @@
                                 <tr>
                                     <td align="left">Service URL:</td>
                                     <td align="center">
-                                        <input name="service-url" size="128" type="text" value="http://hostname:port/path"/>
+                                        <input name="service-url" size="128" type="text" value=" http://host1.geolabs.fr:5001/cgi-bin/zoo_loader.cgi"/>
                                     </td>
                                 </tr>
                             </table>
@@ -98,7 +98,9 @@
 
 			<!-- set other "global" variables -->
 			<xsl:variable name="ogc.schema.root" select="'http://schemas.opengis.net/'"/>
-			<xsl:variable name="wps.schema.root" select="$ogc.schema.root"/>
+			<xsl:variable name="local.schema.root" select ="."/>
+			<xsl:variable name="wps.schema.root" select="$local.schema.root"/>
+			
 
 			<xsl:variable name="wps.version" select="'1.0.0'"/>
 			<xsl:variable name="ows.version" select="'1.1.0'"/>
@@ -159,7 +161,7 @@
 				<ctl:with-param name="serviceType" select="string('WPS')"/>
 				<ctl:with-param name="serviceVersion" select="$wpsVersion" />
 				<ctl:with-param name="capabilitiesRootElementName" select="string('Capabilities')" />
-				<ctl:with-param name="capabilitiesResponseSchemaLocation" select="wpsFunctions:schemaPath($wpsSchemaRoot, $wpsVersion,'wps', 'wpsGetCapabilities_response.xsd')"/>
+				<ctl:with-param name="capabilitiesResponseSchemaLocation" select="string('xsd/ogc/wps/1.0.0/wpsGetCapabilities_response.xsd')"/>
 				<ctl:with-param name="capabilitiesResponseSchemaType" select="string('url')" />
 				<ctl:with-param name="capabilitiesResponseContentType" select="string('text/xml')" />
 				<ctl:with-param name="exceptionReportSchemaLocation" select="$exceptionReportSchema"/>
