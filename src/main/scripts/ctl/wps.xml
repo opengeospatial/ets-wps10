@@ -98,12 +98,14 @@
 
 			<!-- set other "global" variables -->
 			<xsl:variable name="ogc.schema.root" select="'http://schemas.opengis.net/'"/>
-			<xsl:variable name="local.schema.root" select ="."/>
-			<xsl:variable name="wps.schema.root" select="$local.schema.root"/>
+			<xsl:variable name="local.schema.root" select ="'xsd/ogc/'"/>
+                        <xsl:variable name="wps.schema.root" select="$local.schema.root"/>
 			
 
 			<xsl:variable name="wps.version" select="'1.0.0'"/>
 			<xsl:variable name="ows.version" select="'1.1.0'"/>
+                        <xsl:variable name="XSLPath" select="base-uri(doc(.))"/>
+                        <xsl:variable name="path" select="concat('file://',substring-before(substring-after($XSLPath,'file:'),'work/'),'scripts/wps/',$wps.version,'/resources/xsd/ogc/wps/',$wps.version,'/wpsGetCapabilities_response.xsd')"/>
 			<xsl:variable name="exceptionReportSchema" select="wpsFunctions:exceptionReportSchemaPath($ogc.schema.root, $ows.version)"/>
 			<ctl:message select="concat('WPS service URL: ',$wps.service.url)"/>
 
@@ -119,7 +121,7 @@
 			<ctl:call-test name="wps:ows-main">
 				<ctl:with-param name="serviceURL" select="$wps.service.url" />
 				<ctl:with-param name="exceptionReportSchema" select="$exceptionReportSchema" />
-				<ctl:with-param name="wpsSchemaRoot" select="$wps.schema.root" />
+				<ctl:with-param name="wpsSchemaRoot" select="$path" />
                                 <ctl:with-param name="wpsVersion" select="$wps.version" />
 				<ctl:with-param name="updatesequenceHigh" select="$wps.updatesequence.high" />
                                 <ctl:with-param name="updatesequenceLow" select="$wps.updatesequence.low" />
@@ -149,11 +151,11 @@
 		<ctl:param name="wpsVersion"/>
                 <ctl:param name="updatesequenceHigh" />
                 <ctl:param name="updatesequenceLow" />
-		<ctl:assertion>All assertions for "ows" conformance are satisfied.</ctl:assertion>
+                <ctl:assertion>All assertions for "ows" conformance are satisfied.</ctl:assertion>
 		<ctl:comment>Test driver for the ows module.</ctl:comment>
 		<ctl:link title="1. OWS">docs/wps/1.0/WPS 1.0 ATS.html#ows</ctl:link>
 		<ctl:code>
-			<ctl:message>***************************</ctl:message>
+                  <ctl:message>***************************</ctl:message>
 			<ctl:message>Running OWS Common Tests...</ctl:message>
 			<ctl:message>***************************</ctl:message>
 			<ctl:call-test name="owsTests:ows-main">
@@ -161,8 +163,8 @@
 				<ctl:with-param name="serviceType" select="string('WPS')"/>
 				<ctl:with-param name="serviceVersion" select="$wpsVersion" />
 				<ctl:with-param name="capabilitiesRootElementName" select="string('Capabilities')" />
-				<ctl:with-param name="capabilitiesResponseSchemaLocation" select="string('xsd/ogc/wps/1.0.0/wpsGetCapabilities_response.xsd')"/>
-				<ctl:with-param name="capabilitiesResponseSchemaType" select="string('url')" />
+				<ctl:with-param name="capabilitiesResponseSchemaLocation" select="$wpsSchemaRoot"/>
+                                <ctl:with-param name="capabilitiesResponseSchemaType" select="string('url')" />
 				<ctl:with-param name="capabilitiesResponseContentType" select="string('text/xml')" />
 				<ctl:with-param name="exceptionReportSchemaLocation" select="$exceptionReportSchema"/>
 				<ctl:with-param name="exceptionReportSchemaType" select="string('url')" />
@@ -294,7 +296,7 @@
 						<ctl:param name="service">WPS</ctl:param>
 
 						<ctl:call-function name="wpsFunctions:xmlValidatingParser">
-							<ctl:with-param name="schemaFile" select="wpsFunctions:schemaPath($wpsSchemaRoot, $wpsVersion,'wps', 'wpsGetCapabilities_response.xsd')"/>
+							<ctl:with-param name="schemaFile" select="concat($wpsSchemaRoot,'wps/',$wpsVersion,'/wpsGetCapabilities_response.xsd')"/>
 						</ctl:call-function>
 
 					</ctl:request>
@@ -304,7 +306,7 @@
 
 					<xsl:when test="not($getCapabilitiesRequest/*)">
 						<ctl:message>GetCapabilites response document failed schema validation.</ctl:message>
-						<ctl:message><xsl:value-of select="concat('Schema: ', wpsFunctions:schemaPath($wpsSchemaRoot, $wpsVersion,'wps', 'wpsGetCapabilities_request.xsd'))"/></ctl:message>
+						<ctl:message><xsl:value-of select="concat('Schema: ', wpsFunctions:schemaPath($wpsSchemaRoot,'wps',$wpsVersion, 'wpsGetCapabilities_request.xsd'))"/></ctl:message>
 						<ctl:fail/>
 					</xsl:when>
 					<xsl:when test="not(string(node-name($getCapabilitiesRequest/*))='wps:Capabilities')">
@@ -363,7 +365,7 @@
 
 						<xsl:variable name="describeProcessVersion" select="wpsFunctions:operationVersion($getCapabilitiesRequest, 'DescribeProcess')"/>
 						<xsl:variable name="describeProcessIdentifier" select="wpsFunctions:capabilitiesFirstProcess($getCapabilitiesRequest)"/>
-						<xsl:variable name="describeProcessSchemaFile" select="wpsFunctions:schemaPath($wpsSchemaRoot, $wpsVersion,'wps', 'wpsDescribeProcess_response.xsd')"/>
+						<xsl:variable name="describeProcessSchemaFile" select="concat($wpsSchemaRoot,'wps/',$wpsVersion, '/wpsDescribeProcess_response.xsd')"/>
 
 						<ctl:message></ctl:message>
 						<ctl:message select="'*************************************'"/>
