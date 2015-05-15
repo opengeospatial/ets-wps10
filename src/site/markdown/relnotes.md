@@ -1,8 +1,12 @@
 #  WPS 1.0.0 Test Suite Release Notes
 
+## 0.4 (2015-05-15)
+
+  * Fix [#4](https://github.com/opengeospatial/ets-wps10/issues/2) - Change to use local schemas and update paths on the test
+
 ## 0.3 (2015-03-25)
 	
-	* [2](https://github.com/opengeospatial/ets-wps10/issues/2) - Clean structure of the test.
+  * [#2](https://github.com/opengeospatial/ets-wps10/issues/2) - Clean structure of the test.
 
 ## r2
 
