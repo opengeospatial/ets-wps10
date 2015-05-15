@@ -104,6 +104,7 @@
 
 			<xsl:variable name="wps.version" select="'1.0.0'"/>
 			<xsl:variable name="ows.version" select="'1.1.0'"/>
+                        
                         <xsl:variable name="XSLPath" select="base-uri(doc(.))"/>
                         <xsl:variable name="path" select="concat('file://',substring-before(substring-after($XSLPath,'file:'),'work/'),'scripts/wps/',$wps.version,'/resources/xsd/ogc/wps/',$wps.version,'/wpsGetCapabilities_response.xsd')"/>
 			<xsl:variable name="exceptionReportSchema" select="wpsFunctions:exceptionReportSchemaPath($ogc.schema.root, $ows.version)"/>
