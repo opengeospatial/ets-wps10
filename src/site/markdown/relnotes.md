@@ -1,5 +1,9 @@
 #  WPS 1.0.0 Test Suite Release Notes
 
+## 0.5 (2015-07-30)
+
+- Update pom.xml to build with Maven 2
+
 ## 0.4 (2015-05-15)
 
   * Fix [#4](https://github.com/opengeospatial/ets-wps10/issues/2) - Change to use local schemas and update paths on the test
