@@ -1162,7 +1162,7 @@
             <xsl:variable name="locatorValue" select="owsFunctions:exceptionCodeLocator($exceptionReport)" />		
 
             <xsl:choose>
-                <xsl:when test="$locatorToCheck='*'">
+                <xsl:when test="$locatorToCheck">
                     <xsl:value-of select="(contains(string($exceptionCodeValue), $exceptionCodeToCheck))" />
                 </xsl:when>
                 <xsl:otherwise>
