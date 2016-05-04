@@ -1,5 +1,10 @@
 #  WPS 1.0.0 Test Suite Release Notes
 
+## 0.6 (2016-04-12)
+
+Fix [#6](https://github.com/opengeospatial/ets-wps10/issues/6) - Multiple Exceptions in ExceptionReport
+
+
 ## 0.5 (2015-07-30)
 
 - Update pom.xml to build with Maven 2
