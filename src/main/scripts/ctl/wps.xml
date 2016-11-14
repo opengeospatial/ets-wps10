@@ -87,7 +87,17 @@
 		</xsl:variable>
 
 			<!-- Get user input: -->
-                        <xsl:variable name="wps.service.url" select="$form-values/values/value[@key='service-url']"/>
+						<xsl:variable name="capability.url"	select="$form-values/values/value[@key='service-url']" />
+						<xsl:variable name="wps.service.url">
+							<xsl:choose>
+								<xsl:when test="not(contains($capability.url, '?'))">
+									<xsl:value-of select="$capability.url" />
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="substring-before($capability.url,'?')" />
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:variable>
                         <xsl:variable name="wps.updatesequence.high" select="$form-values/values/value[@key='updatesequence-high']"/>
                         <xsl:variable name="wps.updatesequence.low" select="$form-values/values/value[@key='updatesequence-low']"/>
 
