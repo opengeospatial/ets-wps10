@@ -1,5 +1,9 @@
 #  WPS 1.0.0 Test Suite Release Notes
 
+## 0.7 (2016-11-14)
+
+Fix [#9](https://github.com/opengeospatial/ets-wps10/issues/9) - Cannot find the declaration of element wps:Capabilities
+
 ## 0.6 (2016-04-12)
 
 Fix [#6](https://github.com/opengeospatial/ets-wps10/issues/6) - Multiple Exceptions in ExceptionReport
