@@ -115,9 +115,14 @@
 			<xsl:variable name="wps.version" select="'1.0.0'"/>
 			<xsl:variable name="ows.version" select="'1.1.0'"/>
                         
-                        <xsl:variable name="XSLPath" select="base-uri(doc(.))"/>
-                        <xsl:variable name="path" select="concat('file://',substring-before(substring-after($XSLPath,'file:'),'work/'),'scripts/wps/',$wps.version,'/resources/xsd/ogc/wps/',$wps.version,'/wpsGetCapabilities_response.xsd')"/>
-			<xsl:variable name="exceptionReportSchema" select="wpsFunctions:exceptionReportSchemaPath($ogc.schema.root, $ows.version)"/>
+			<xsl:variable name="XSLPath" select="base-uri(doc(.))"/>
+			<xsl:variable name="path" select="concat('file://',substring-before(substring-after($XSLPath,'file:'),'work/'),'scripts/wps/',$wps.version,'/resources/xsd/ogc/wps/',$wps.version,'/wpsGetCapabilities_response.xsd')"/>
+			<xsl:variable name="exceptionReportSchema">
+				<ctl:call-function name="wpsFunctions:exceptionReportSchemaPath" >
+				<ctl:with-param name="ogc.schema.root" select="$ogc.schema.root" />
+				<ctl:with-param name="ows_version" select="$ows.version" />
+				</ctl:call-function>
+			</xsl:variable>
 			<ctl:message select="concat('WPS service URL: ',$wps.service.url)"/>
 
                         <xsl:if test="$wps.updatesequence.high!=''">
