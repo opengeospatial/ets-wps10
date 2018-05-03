@@ -338,7 +338,7 @@
 			</ctl:code>
 		</ctl:test>
 
-    <ctl:test name="wps:preconditions">
+    <ctl:test name="wps:preconditions" isConformanceClass="true" isBasic="true">
       <ctl:param name="getCapabilitiesRequest" />
       <ctl:assertion>All assertions for preconditions are satisfied.</ctl:assertion>
       <ctl:code>
@@ -348,7 +348,7 @@
       </ctl:code>
     </ctl:test>
 
-    <ctl:test name="wps:GetCapabilities-main">
+    <ctl:test name="wps:GetCapabilities-main" isConformanceClass="true" isBasic="true">
       <ctl:param name="serviceURL" />
       <ctl:param name="getCapabilitiesRequest" />
       <ctl:param name="exceptionReportSchema" />
@@ -397,7 +397,7 @@
       </ctl:code>
     </ctl:test>
 
-    <ctl:test name="wps:DescribeProcess-main">
+    <ctl:test name="wps:DescribeProcess-main" isConformanceClass="true" isBasic="true">
       <ctl:param name="getCapabilitiesRequest" />
       <ctl:param name="exceptionReportSchema" />
       <ctl:param name="wpsSchemaRoot"/>
@@ -508,7 +508,7 @@
       </ctl:code>
     </ctl:test>
 
-    <ctl:test name="wps:Execute-main">
+    <ctl:test name="wps:Execute-main" isConformanceClass="true" isBasic="true">
       <ctl:param name="getCapabilitiesRequest" />
       <ctl:param name="exceptionReportSchema" />
       <ctl:assertion>All assertions for "Execute" conformance are satisfied.</ctl:assertion>
