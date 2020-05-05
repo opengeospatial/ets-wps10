@@ -1,4 +1,4 @@
-# OGC Web Processing Service 1.0.0 Test-Suite
+# ets-wps10-testng
 
 The OGC Web Processing Service 1.0.0 Test-Suite provides the Executable Test Script (ETS) to test implementations against the following specification(s):
 
@@ -16,7 +16,7 @@ Detailed information about this test suite is available [here](http://opengeospa
 
 ## License
 
-[Apache 2.0 License](LICENSE.md)
+[Apache 2.0 License](LICENSE.txt)
 
 ## Build
 
