@@ -43,14 +43,14 @@ public class VerifyCapability1Tests {
 
     @Test
     public void testTrim() {
-        Capability1Tests iut = new Capability1Tests();
-        iut.trim();
+//        Capability1Tests iut = new Capability1Tests();
+//        iut.trim();
     }
 
     @Test(expected = NullPointerException.class)
     public void supplyNullTestSubject() throws SAXException, IOException {
-        Capability1Tests iut = new Capability1Tests();
-        iut.NotEmpty();
+//        Capability1Tests iut = new Capability1Tests();
+//        iut.NotEmpty();
     }
 
     
