@@ -18,6 +18,7 @@
       <class name="org.opengis.cite.wps10.level1.AllOperationServerValidation"/>
       <class name="org.opengis.cite.wps10.level1.GetCapabilitiesValidation"/>
       <class name="org.opengis.cite.wps10.level1.DescribeProcessValidation"/>
+      <class name="org.opengis.cite.wps10.level1.ExecuteValidation"/>
     </classes>
   </test>
   <!-- Add test sets for other conformance classes/levels -->
