@@ -37,6 +37,10 @@ public enum SuiteAttribute {
      * A File containing the test subject or a description of it.
      */
     TEST_SUBJ_FILE("testSubjectFile", File.class),
+    /**
+     * A File containing the test subject or a description of it.
+     */
+    EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT("EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT",Document.class),
     /*
      * A set of schema locations
      */

@@ -10,6 +10,7 @@ public enum TestRunArg {
      * metadata about it.
      */
     IUT,
+    EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT,
     XML,
 	XSD;
 

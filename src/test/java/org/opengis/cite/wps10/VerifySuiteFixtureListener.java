@@ -26,7 +26,7 @@ public class VerifySuiteFixtureListener {
 
     public VerifySuiteFixtureListener() {
     }
-
+/*
     @BeforeClass
     public static void setUpClass() {
         xmlSuite = mock(XmlSuite.class);
@@ -65,6 +65,6 @@ public class VerifySuiteFixtureListener {
         verify(suite).setAttribute(
                 Matchers.eq(SuiteAttribute.TEST_SUBJ_FILE.getName()), 
                 Matchers.isA(File.class));
-    }
+    }*/
 
 }

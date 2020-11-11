@@ -27,6 +27,7 @@ public class VerifyCapability1Tests {
     public VerifyCapability1Tests() {
     }
 
+    /*
     @BeforeClass
     public static void setUpClass() throws Exception {
         testContext = mock(ITestContext.class);
@@ -52,6 +53,6 @@ public class VerifyCapability1Tests {
 //        Capability1Tests iut = new Capability1Tests();
 //        iut.NotEmpty();
     }
-
+*/
     
 }

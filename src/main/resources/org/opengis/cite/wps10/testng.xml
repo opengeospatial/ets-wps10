@@ -15,10 +15,14 @@
       <!-- <package name="org.opengis.cite.wps10.level1" /> -->
     </packages>
     <classes>
-      <class name="org.opengis.cite.wps10.level1.AllOperationServerValidation"/>
-      <class name="org.opengis.cite.wps10.level1.GetCapabilitiesValidation"/>
+      <class name="org.opengis.cite.wps10.level1.ExecuteValidation">
+      	<methods>
+            <include name="RawDataOutputExecuteValidation" />
+         </methods>
+      </class>
+      <!-- <class name="org.opengis.cite.wps10.level1.GetCapabilitiesValidation"/>
       <class name="org.opengis.cite.wps10.level1.DescribeProcessValidation"/>
-      <class name="org.opengis.cite.wps10.level1.ExecuteValidation"/>
+      <class name="org.opengis.cite.wps10.level1.ExecuteValidation"/> -->
     </classes>
   </test>
   <!-- Add test sets for other conformance classes/levels -->

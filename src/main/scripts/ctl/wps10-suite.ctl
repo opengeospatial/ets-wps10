@@ -57,6 +57,7 @@
                    <h4 style="margin-bottom: 0.5em">Upload IUT</h4>
                  </label>
                  <input name="doc" id="doc" size="128" type="file" />
+                 <input name="fileExecuteRequestFileRawDataOutput" id="fileExecuteRequestFileRawDataOutput" size="128" type="file" />
                </p>
                <p>
                  <label for="level">Conformance class: </label>
@@ -73,6 +74,7 @@
            </ctl:form>
         </xsl:variable>
         <xsl:variable name="iut-file" select="$form-data//value[@key='doc']/ctl:file-entry/@full-path" />
+        <xsl:variable name="execute-request-rawdataoutput-file" select="$form-data//value[@key='fileExecuteRequestFileRawDataOutput']/ctl:file-entry/@full-path" />
 	      <xsl:variable name="test-run-props">
 		    <properties version="1.0">
           <entry key="iut">
@@ -85,6 +87,7 @@
               </xsl:otherwise>
             </xsl:choose>
           </entry>
+          <entry key="execute_request_file_raw_data_output"><xsl:copy-of select="concat('file:///', $execute-request-rawdataoutput-file)" /></entry>
           <entry key="ics"><xsl:value-of select="$form-data/values/value[@key='level']"/></entry>
 		    </properties>
 		   </xsl:variable>

@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.opengis.cite.wps10.CommonFixture;
+import org.opengis.cite.wps10.DataFixture;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
@@ -23,12 +25,17 @@ import javafx.util.Pair;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
-public class ExecuteValidation extends CommonFixture {
+public class ExecuteValidation extends DataFixture {
 	
 	/**
 	 * A.4.4. Execute Validation
@@ -156,33 +163,7 @@ public class ExecuteValidation extends CommonFixture {
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
 		if(isValid) {
-			String xmlString  = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
-					"<wps:Execute version=\"1.0.0\" service=\"WPS\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.opengis.net/wps/1.0.0\" xmlns:wfs=\"http://www.opengis.net/wfs\" xmlns:wps=\"http://www.opengis.net/wps/1.0.0\" xmlns:ows=\"http://www.opengis.net/ows/1.1\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:wcs=\"http://www.opengis.net/wcs/1.1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xsi:schemaLocation=\"http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd\">\r\n" + 
-					"  <ows:Identifier>JTS:buffer</ows:Identifier>\r\n" + 
-					"  <wps:DataInputs>\r\n" + 
-					"    <wps:Input>\r\n" + 
-					"      <ows:Identifier>geom</ows:Identifier>\r\n" + 
-					"      <wps:Data>\r\n" + 
-					"        <wps:ComplexData mimeType=\"text/xml; subtype=gml/3.1.1\">\r\n" + 
-					"            <gml:LineString>\r\n" + 
-					"                <gml:posList>0.0 0.0 10.0 0.0 10.0 10.0</gml:posList>\r\n" + 
-					"            </gml:LineString>\r\n" + 
-					"        </wps:ComplexData>\r\n" + 
-					"      </wps:Data>\r\n" + 
-					"    </wps:Input>\r\n" + 
-					"    <wps:Input>\r\n" + 
-					"      <ows:Identifier>distance</ows:Identifier>\r\n" + 
-					"      <wps:Data>\r\n" + 
-					"        <wps:LiteralData>2</wps:LiteralData>\r\n" + 
-					"      </wps:Data>\r\n" + 
-					"    </wps:Input>\r\n" + 
-					"  </wps:DataInputs>\r\n" + 
-					"  <wps:ResponseForm>\r\n" + 
-					"    <wps:RawDataOutput mimeType=\"text/xml; subtype=gml/3.1.1\">\r\n" + 
-					"      <ows:Identifier>result</ows:Identifier>\r\n" + 
-					"    </wps:RawDataOutput>\r\n" + 
-					"  </wps:ResponseForm>\r\n" + 
-					"</wps:Execute>";
+			String xmlString  = getStringOfXmlDocument(this.executeRequestFileRawDataOutputSubject);
 			String xsdReqPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_request.xsd";
 			boolean isRequestValid = isXMLSchemaValid(xsdReqPath, xmlString.toString()) ? true : false;			
 			if(isRequestValid) {
@@ -191,10 +172,15 @@ public class ExecuteValidation extends CommonFixture {
 //				if(reqDoc.getElementsByTagName("wps:RawDataOutput").item(0).getAttributes().getNamedItem("mimeType") == null)
 //					System.out.println("Hello");
 				
-				String reqMimeType	= reqDoc.getElementsByTagName("wps:RawDataOutput").item(0).getAttributes().getNamedItem("mimeType").getNodeValue();
+				//String reqMimeType	= reqDoc.getElementsByTagName("wps:RawDataOutput").item(0).getAttributes().getNamedItem("mimeType").getNodeValue();
 //				String resMimeType 	= getContentTypeByPOST(serviceURL, xmlString);
-				String resMimeType 	= getRequestByPOST(serviceURL, xmlString).getKey().getContentType();
-				status	= reqMimeType.equals(resMimeType) ? true : false;
+				//String resMimeType 	= getRequestByPOST(serviceURL, xmlString).getKey().getContentType();
+				//status	= reqMimeType.equals(resMimeType) ? true : false;
+				
+				StringBuilder xmlLocationResponse = sendRequestByPOST(serviceURL, xmlString);
+				String xsdLocPath 	 = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
+				status	= isXMLSchemaValid(xsdLocPath, xmlLocationResponse.toString()) ? true : false;	
+				
 				msg 	= "The server does not satisfies all requirements on the Execute operation response";
 
 //				StringBuilder xmlResponse = sendRequestByPOST(serviceURL, xmlString);
@@ -585,5 +571,40 @@ public class ExecuteValidation extends CommonFixture {
         }
         return null;
     }
+	
+	private static String getStringOfXmlDocument(Document xmlDocument)
+    {
+    	String xmlString = "";
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer;
+        try {
+            transformer = tf.newTransformer();
+             
+            // Uncomment if you do not require XML declaration
+            // transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+             
+            //A character stream that collects its output in a string buffer, 
+            //which can then be used to construct a string.
+            StringWriter writer = new StringWriter();
+     
+            //transform document to string 
+            transformer.transform(new DOMSource(xmlDocument), new StreamResult(writer));
+     
+            xmlString = writer.getBuffer().toString();   
+            System.out.println(xmlString);                      //Print to console or logs
+            
+        } 
+        catch (TransformerException e) 
+        {
+            e.printStackTrace();
+        }
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+        
+        return xmlString;
+    }
+
 }
 

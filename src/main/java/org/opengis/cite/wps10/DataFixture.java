@@ -60,7 +60,7 @@ public class DataFixture {
      * An XSModel object representing a GML application schema.
      */
     protected XSModel model;
-    
+    protected Document executeRequestFileRawDataOutputSubject;
 	
     public DataFixture() {
     }
@@ -89,6 +89,13 @@ public class DataFixture {
             this.testSubjectUri = URI.class.cast(uriObj);
             //System.out.println(this.testSubjectUri.toString());        	
         }
+        
+        Object executeRequestFileRawDataOutputObj = testContext.getSuite().getAttribute(
+                SuiteAttribute.EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT.getName());
+        if((null != executeRequestFileRawDataOutputObj) && Document.class.isAssignableFrom(executeRequestFileRawDataOutputObj.getClass())) {
+        	this.executeRequestFileRawDataOutputSubject = Document.class.cast(executeRequestFileRawDataOutputObj);
+        }
+
     }
     /**
      * A configuration method ({@code BeforeClass}) that initializes the test

@@ -108,6 +108,24 @@ public class SuiteFixtureListener implements ISuiteListener {
             logMsg.append(XMLUtils.writeNodeToString(iutDoc));
             TestSuiteLogger.log(Level.FINE, logMsg.toString());
         }
+        
+        //Set RawDataOutput test file
+        String executeRequestRawDataOutputParam = params.get(TestRunArg.EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT.toString());
+        URI executeRequestRawDataOutputRef = URI.create(executeRequestRawDataOutputParam.trim());
+        File executeRequestRawDataOutputFile = null;
+        try {
+        	executeRequestRawDataOutputFile = URIUtils.dereferenceURI(executeRequestRawDataOutputRef);
+        }catch (Exception ex) {
+            throw new RuntimeException("Failed to dereference resource located at " + executeRequestRawDataOutputRef, ex);        	
+        }
+        Document executeRequestRawDataOutputDoc = null;
+        try {
+            executeRequestRawDataOutputDoc = URIUtils.parseURI(executeRequestRawDataOutputFile.toURI());
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to parse resource retrieved from " + executeRequestRawDataOutputRef, ex);
+        }
+        suite.setAttribute(SuiteAttribute.EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT.getName(), executeRequestRawDataOutputDoc);
+
     }
 
     /**
