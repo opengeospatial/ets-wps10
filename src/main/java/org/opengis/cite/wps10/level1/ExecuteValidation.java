@@ -10,6 +10,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.opengis.cite.wps10.CommonFixture;
 import org.opengis.cite.wps10.DataFixture;
@@ -19,8 +22,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import java.util.*;
-import javafx.util.Pair; 
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -174,7 +175,9 @@ public class ExecuteValidation extends DataFixture {
 				
 				//String reqMimeType	= reqDoc.getElementsByTagName("wps:RawDataOutput").item(0).getAttributes().getNamedItem("mimeType").getNodeValue();
 //				String resMimeType 	= getContentTypeByPOST(serviceURL, xmlString);
-				//String resMimeType 	= getRequestByPOST(serviceURL, xmlString).getKey().getContentType();
+				//Map<HttpURLConnection, StringBuilder> connectionResponseMap = getRequestByPOST(serviceURL, xmlString);
+				//Entry<HttpURLConnection, StringBuilder> entry = connectionResponseMap.entrySet().iterator().next();
+				//String resMimeType 	= entry.getKey().getContentType();
 				//status	= reqMimeType.equals(resMimeType) ? true : false;
 				
 				StringBuilder xmlLocationResponse = sendRequestByPOST(serviceURL, xmlString);
@@ -499,7 +502,7 @@ public class ExecuteValidation extends DataFixture {
 		}
 	}
 	
-	private static Pair<HttpURLConnection, StringBuilder> getRequestByPOST(String requestURL, String XML) throws IOException {		
+	private static Map<HttpURLConnection, StringBuilder> getRequestByPOST(String requestURL, String XML) throws IOException {		
 		URL obj = new URL(requestURL);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		con.setRequestProperty("Content-Type", "application/xml");
@@ -521,7 +524,9 @@ public class ExecuteValidation extends DataFixture {
 				response.append(new String(res, 0, i));
 			}
 			inputStream.close();
-			return new Pair<HttpURLConnection, StringBuilder>(con, response);
+			Map<HttpURLConnection, StringBuilder> connectionResponseMap = new HashMap<HttpURLConnection, StringBuilder>();
+			connectionResponseMap.put(con, response);
+			return connectionResponseMap;
 		} else {
 			System.out.println("HTTP POST request not worked");
 			return null;
