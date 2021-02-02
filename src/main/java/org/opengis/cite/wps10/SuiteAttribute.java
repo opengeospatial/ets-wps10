@@ -20,6 +20,7 @@ public enum SuiteAttribute {
      * A client component for interacting with HTTP endpoints.
      */
     CLIENT("httpClient", Client.class),
+    
     XML("xml-data", File.class),
     /**
      * Contains the XML Schema components comprising an application schema.
@@ -37,14 +38,17 @@ public enum SuiteAttribute {
      * A File containing the test subject or a description of it.
      */
     TEST_SUBJ_FILE("testSubjectFile", File.class),
-    /**
-     * A File containing the test subject or a description of it.
-     */
-    EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT("EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT",Document.class),
     /*
      * A set of schema locations
      */
-    SCHEMA_LOC_SET("schema-loc-set", Set.class);
+    SCHEMA_LOC_SET("schema-loc-set", Set.class),
+	
+	/*
+		A file containing the content of execute request
+	*/
+	EXECUTE_REQUEST_RAW_DATA_URI("EXECUTE_REQUEST_RAW_DATA_URI", Document.class),
+	EXECUTE_REQUEST_RESPONSE_DOCUMENT_URI("EXECUTE_REQUEST_RESPONSE_DOCUMENT_URI", Document.class),
+	EXECUTE_REQUEST_UPDATING_RESPONSE_DOCUMENT_URI("EXECUTE_REQUEST_UPDATING_RESPONSE_DOCUMENT_URI", Document.class);
 	
     private final Class attrType;
     private final String attrName;

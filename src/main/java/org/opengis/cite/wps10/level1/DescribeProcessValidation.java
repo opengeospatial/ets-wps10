@@ -27,7 +27,9 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.opengis.cite.wps10.CommonFixture;
+import org.opengis.cite.wps10.DataFixture;
 import org.opengis.cite.wps10.Namespaces;
+import org.opengis.cite.wps10.util.ValidationUtils;
 import org.opengis.cite.wps10.util.XMLUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -45,9 +47,10 @@ import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmValue;
 
 
-public class DescribeProcessValidation extends CommonFixture{
-	String service_url1 = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
-	String service_url2 = "http://93.187.166.52:8081/geoserver/ows";
+public class DescribeProcessValidation extends DataFixture{
+//	String serviceURL 	= this.testSubjectUri.toString();
+//	String service_url1 = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
+//	String service_url2 = "http://93.187.166.52:8081/geoserver/ows";
 	
 	/**
 	 * A.4.3.1 Accept DescribeProcess HTTP GET transferred operation requests
@@ -56,8 +59,9 @@ public class DescribeProcessValidation extends CommonFixture{
 	 */
 	@Test(groups = "A.4.3. DescribeProcess operation test module", description = "Verify that a server accepts at least HTTP GET transferred requests for the DescribeProcess operation")
 	public void HTTPGETTransferredKVPDescribeProcessValidation() throws IOException, URISyntaxException {
+		String serviceURL 	= testSubjectUri.toString();
 		String param = "?service=wps&version=1.0.0&request=DescribeProcess&Identifier=ALL";
-		HttpURLConnection connection = GetConnection(service_url1, param);
+		HttpURLConnection connection = GetConnection(serviceURL, param);
 	 
 		connection.setRequestMethod("GET");
 	  
@@ -78,6 +82,7 @@ public class DescribeProcessValidation extends CommonFixture{
 	@Test(groups = "A.4.3. DescribeProcess operation test module", description = "Verify that a server accepts at HTTP POST transferred requests for the DescribeProcess operation")
 	public void HTTPPOSTTransferredXMLDescribeProcessValidation() throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
 		////Check correct POST operation request
+		String serviceURL 	= testSubjectUri.toString();
 		String msgCorrect = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 				+ "<wps:DescribeProcess service=\"WPS\" version=\"1.0.0\" "
 				+ "xmlns:wps=\"http://www.opengis.net/wps/1.0.0\" "
@@ -86,7 +91,7 @@ public class DescribeProcessValidation extends CommonFixture{
 				+ "xsi:schemaLocation=\"http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsDescribeProcess_request.xsd\">"
 				+ "<ows:Identifier>ALL</ows:Identifier>"
 				+ "</wps:DescribeProcess>";
-		String responseCorrect = postMessage(msgCorrect, service_url1);
+		String responseCorrect = postMessage(msgCorrect, serviceURL);
 		
 		//Read xml string using Xpath2
 		InputSource source = new InputSource(new StringReader(responseCorrect));
@@ -107,11 +112,12 @@ public class DescribeProcessValidation extends CommonFixture{
 	@Test(groups = "A.4.3. DescribeProcess operation test module", description = "Verify that a server satisfies all requirements on the DescribeProcess operation response.")
 	public void DescribeProcessResponseValidation() throws IOException, SAXException {
 		//Set KVP request
+		String serviceURL 	= testSubjectUri.toString();
 		String param = "?service=wps&version=1.0.0&request=DescribeProcess&Identifier=ALL";
-		String response = sendGetRequest(service_url1, param);
+		String response = sendGetRequest(serviceURL, param);
 		
 		//Check response with xsd file
-		String xsdPath = "target/classes/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsDescribeProcess_response.xsd";
+		String xsdPath = "xsd/opengis/wps/1.0/wpsDescribeProcess_response.xsd";
 		boolean resultValidation = validateXMLString(response, xsdPath);
 		
 		Assert.assertTrue(resultValidation, "The server does not satisfies all requirements on the DescribeProcess operation response");
@@ -127,7 +133,8 @@ public class DescribeProcessValidation extends CommonFixture{
     @Test(groups = "A.4.3. DescribeProcess operation test module",description = "Verify that a server satisfies the requirements for using the Language parameter for the DescribeProcess operation." )
     public void LanguageSelectionGetCapabilitiesValidation() throws IOException, ParserConfigurationException, SAXException, SaxonApiException{
     	// send GetCapabilities and check support versions
-    	String response = sendGetRequest(service_url1, "?service=wps&request=GetCapabilities&AcceptVersions=1.0.0");
+    	String serviceURL 	= testSubjectUri.toString();
+    	String response = sendGetRequest(serviceURL, "?service=wps&request=GetCapabilities&AcceptVersions=1.0.0");
     	
     	// Read xml string using Xpath2
     	InputSource sourceWR = new InputSource(new StringReader(response));
@@ -154,7 +161,7 @@ public class DescribeProcessValidation extends CommonFixture{
 		
 		//send request using each support language
 		for (String language : supportLanguageList) {
-			String languageSelectionResponse = sendGetRequest(service_url1,"?service=wps&request=DescribeProcess&Version=1.0.0&identifier=ALL&language=" + language);
+			String languageSelectionResponse = sendGetRequest(serviceURL,"?service=wps&request=DescribeProcess&Version=1.0.0&identifier=ALL&language=" + language);
 			
 			// Read xml string using Xpath2
 	    	InputSource source = new InputSource(new StringReader(languageSelectionResponse));
@@ -211,9 +218,9 @@ public class DescribeProcessValidation extends CommonFixture{
 	
 	public boolean validateXMLString(String inputXml, String schemaLocation)throws SAXException, IOException {
     	// build the schema
-    	SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-    	File schemaFile = new File(schemaLocation);
-    	Schema schema = factory.newSchema(schemaFile);
+    	//SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+    	//File schemaFile = new File(schemaLocation);
+    	Schema schema = ValidationUtils.createSchema(schemaLocation);
     	Validator validator = schema.newValidator();
     	// create a source from a string
     	Source source = new StreamSource(new StringReader(inputXml));
@@ -264,7 +271,13 @@ public class DescribeProcessValidation extends CommonFixture{
 		wr.close();
 
 		// read response
-		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		BufferedReader in;
+		int responseCode = conn.getResponseCode();
+		if(responseCode > 299)
+		    in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+		else
+		    in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		
 		String str;
 		while ((str = in.readLine()) != null) {
 			content.append(str);

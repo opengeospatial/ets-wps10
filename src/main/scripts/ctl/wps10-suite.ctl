@@ -18,7 +18,7 @@
 	</ctl:function>
 
    <ctl:suite name="tns:ets-wps10-${version}">
-     <ctl:title>wps10 Conformance Test Suite</ctl:title>
+     <ctl:title>Web Processing Service (WPS) 1.0 Data Model Encoding Standard</ctl:title>
      <ctl:description>Describe scope of testing.</ctl:description>
      <ctl:starting-test>tns:Main</ctl:starting-test>
    </ctl:suite>
@@ -28,7 +28,7 @@
 	  <ctl:code>
         <xsl:variable name="form-data">
            <ctl:form method="POST" width="800" height="600" xmlns="http://www.w3.org/1999/xhtml">
-             <h2>wps10 Conformance Test Suite</h2>
+             <h2>Web Processing Service (WPS) 1.0 Data Model Encoding Standard</h2>
              <div style="background:#F0F8FF" bgcolor="#F0F8FF">
                <p>The implementation under test (IUT) is checked against the following specifications:</p>
                <ul>
@@ -52,13 +52,34 @@
                  </label>
                  <input id="uri" name="uri" size="128" type="text" value="http://www.w3schools.com/xml/note.xml" />
                </p>
+               <!-- TEMPORARY CLOSE 
                <p>
                  <label for="doc">
                    <h4 style="margin-bottom: 0.5em">Upload IUT</h4>
                  </label>
                  <input name="doc" id="doc" size="128" type="file" />
+               </p> 
+               -->
+               <!-- UPLOAD TEST FILE -->
+               <p>
+                 <label for="fileExecuteRequestFileRawDataOutput">
+                   <h4 style="margin-bottom: 0.5em">Sample for testing Raw Data</h4>
+                 </label>
                  <input name="fileExecuteRequestFileRawDataOutput" id="fileExecuteRequestFileRawDataOutput" size="128" type="file" />
                </p>
+               <p>
+                 <label for="fileExecuteRequestResponseDocument">
+                   <h4 style="margin-bottom: 0.5em">Sample for testing Response Document</h4>
+                 </label>
+                 <input name="fileExecuteRequestResponseDocument" id="fileExecuteRequestResponseDocument" size="128" type="file" />
+               </p>
+               <p>
+                 <label for="fileExecuteRequestUpdatingResponseDocument">
+                   <h4 style="margin-bottom: 0.5em">Sample for testing Updating Response Document</h4>
+                 </label>
+                 <input name="fileExecuteRequestUpdatingResponseDocument" id="fileExecuteRequestUpdatingResponseDocument" size="128" type="file" />
+               </p>
+               <!-- END -->
                <p>
                  <label for="level">Conformance class: </label>
                  <input id="level-1" type="radio" name="level" value="1" checked="checked" />
@@ -74,7 +95,11 @@
            </ctl:form>
         </xsl:variable>
         <xsl:variable name="iut-file" select="$form-data//value[@key='doc']/ctl:file-entry/@full-path" />
-        <xsl:variable name="execute-request-rawdataoutput-file" select="$form-data//value[@key='fileExecuteRequestFileRawDataOutput']/ctl:file-entry/@full-path" />
+        <!-- DEFINE TEST VARIABLE -->
+        <xsl:variable name="execute-request-raw-data-output-file" select="$form-data//value[@key='fileExecuteRequestFileRawDataOutput']/ctl:file-entry/@full-path" />
+        <xsl:variable name="execute-request-response-document-file" select="$form-data//value[@key='fileExecuteRequestResponseDocument']/ctl:file-entry/@full-path" />
+        <xsl:variable name="execute-request-updating-response-document-file" select="$form-data//value[@key='fileExecuteRequestUpdatingResponseDocument']/ctl:file-entry/@full-path" />
+        <!-- END -->
 	      <xsl:variable name="test-run-props">
 		    <properties version="1.0">
           <entry key="iut">
@@ -87,8 +112,12 @@
               </xsl:otherwise>
             </xsl:choose>
           </entry>
-          <entry key="execute_request_file_raw_data_output"><xsl:copy-of select="concat('file:///', $execute-request-rawdataoutput-file)" /></entry>
           <entry key="ics"><xsl:value-of select="$form-data/values/value[@key='level']"/></entry>
+          <!-- RELATED VARIABLE -->
+          <entry key="execute_request_raw_data_uri"><xsl:copy-of select="concat('file:///', $execute-request-raw-data-output-file)" /></entry>
+          <entry key="execute_request_response_document_uri"><xsl:copy-of select="concat('file:///', $execute-request-response-document-file)" /></entry>
+          <entry key="execute_request_updating_response_document_uri"><xsl:copy-of select="concat('file:///', $execute-request-updating-response-document-file)" /></entry>
+          <!-- END -->
 		    </properties>
 		   </xsl:variable>
        <xsl:variable name="testRunDir">

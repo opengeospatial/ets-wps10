@@ -11,8 +11,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.opengis.cite.wps10.Namespaces;
+import org.opengis.cite.wps10.util.ValidationUtils;
 import org.opengis.cite.wps10.util.XMLUtils;
-import org.opengis.cite.wps10.CommonFixture;
+//import org.opengis.cite.wps10.CommonFixture;
+import org.opengis.cite.wps10.DataFixture;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
@@ -41,9 +43,10 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 ///latest-wps/WebProcessingService
-public class GetCapabilitiesValidation extends CommonFixture {
-	String service_url1 = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
-	String service_url2 = "http://93.187.166.52:8081/geoserver/ows";
+public class GetCapabilitiesValidation extends DataFixture {
+//	String serviceURL 	= this.testSubjectUri.toString();
+//	String service_url1 = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
+//	String service_url2 = "http://93.187.166.52:8081/geoserver/ows";
 	
 	/**
 	 * A.4.2.1 Accept HTTP GET transferred KVP GetCapabilities operation request
@@ -53,6 +56,7 @@ public class GetCapabilitiesValidation extends CommonFixture {
 	@Test(groups = "A.4.2. GetCapabilities operation test module", description = "Verify that a server accepts at least HTTP GET transferred requests for the GetCapabilities operation")
 	public void HTTPGETTransferredKVPGetCapabilitiesValidation() throws IOException, URISyntaxException {
 		//Create list of parameters
+		String serviceURL 	= testSubjectUri.toString();
 		List<String> params = new ArrayList<String>();
 		params.add(0,"?service=wps&request=GetCapabilities");
 		params.add(1,"?service=wps&request=GetCapabilities&AcceptVersions=1.0.0");
@@ -61,7 +65,7 @@ public class GetCapabilitiesValidation extends CommonFixture {
 		//HTTP GET transferred KVP GetCapabilities operation request and receive the response code in a HashSet
 		HashSet<Integer> res = new HashSet<Integer>();
 		for (String param : params){
-			HttpURLConnection connection = GetConnection(service_url2, param);
+			HttpURLConnection connection = GetConnection(serviceURL, param);
 			
 			connection.setRequestMethod("GET");
 			
@@ -85,6 +89,7 @@ public class GetCapabilitiesValidation extends CommonFixture {
 	@Test(groups = "A.4.2. GetCapabilities operation test module", description = "Verify that a server accepts at HTTP POST transferred requests for the GetCapabilities operation if advertised in the GetCapabilities Response")
 	public void HTTPPOSTTransferredXMLGetCapabilitiesValidation() throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
 		////Check correct POST operation request
+		String serviceURL 	= testSubjectUri.toString();
 		String msgCorrect = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 				+ "<wps:GetCapabilities service=\"WPS\" "
 				+ "xmlns:wps=\"http://www.opengis.net/wps/1.0.0\" "
@@ -94,7 +99,7 @@ public class GetCapabilitiesValidation extends CommonFixture {
 				+ "<ows:Version xmlns:ows=\"http://www.opengis.net/ows/1.1\">1.0.0</ows:Version>"
 				+ "</wps:AcceptVersions>"
 				+ "</wps:GetCapabilities>";
-		String responseCorrect = postMessage(msgCorrect, service_url2);
+		String responseCorrect = postMessage(msgCorrect, serviceURL);
 		
 		//Read xml string using Xpath2
 		InputSource source = new InputSource(new StringReader(responseCorrect));
@@ -115,7 +120,7 @@ public class GetCapabilitiesValidation extends CommonFixture {
 				+ "<ows:Version xmlns:ows=\"http://www.opengis.net/ows/1.1\">1.0.0</ows:Version>"
 				+ "</wps:AcceptVersions>"
 				+ "</wps:GetCapabilities>";
-		String responseWrong = postMessage(msgWrong, service_url2);
+		String responseWrong = postMessage(msgWrong, serviceURL);
 		
 		//Read xml string using Xpath2
 		InputSource sourceWR = new InputSource(new StringReader(responseWrong));
@@ -137,6 +142,7 @@ public class GetCapabilitiesValidation extends CommonFixture {
 	 */
 	@Test(groups = "A.4.2. GetCapabilities operation test module", description = "Verify that a server satisfies all requirements on the GetCapabilities operation response")
 	public void GetCapabilitiesResponseValidation() throws IOException, SAXException {
+		String serviceURL 	= testSubjectUri.toString();
 		//Create list of parameters
 		List<String> params = new ArrayList<String>();
 		params.add(0,"?service=wps&request=GetCapabilities");
@@ -145,8 +151,8 @@ public class GetCapabilitiesValidation extends CommonFixture {
 		//HTTP GET transferred KVP GetCapabilities operation request and receive the response xml file
 		HashSet<Boolean> res = new HashSet<Boolean>();
 		for (String param : params){
-			String response = sendGetRequest(service_url1, param);
-			String xsdPath = "target/classes/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsGetCapabilities_response.xsd";
+			String response = sendGetRequest(serviceURL, param);
+			String xsdPath = "xsd/opengis/wps/1.0/wpsGetCapabilities_response.xsd";
 			boolean resultValidation = validateXMLString(response, xsdPath);
 			res.add(resultValidation);		
 		}
@@ -163,9 +169,9 @@ public class GetCapabilitiesValidation extends CommonFixture {
 	 */
 	@Test(enabled = true, groups = "A.4.2. GetCapabilities operation test module",description = "Verify that a server satisfies the requirements for version negotiation" )
     public void VersionNegotiationGetCapabilitiesValidation() throws IOException,SaxonApiException,SAXException,ParserConfigurationException{
-    	
+		String serviceURL 	= testSubjectUri.toString();
 		// send GetCapabilities and check support versions
-		String response = sendGetRequest(service_url1, "?service=wps&request=GetCapabilities&language=en-US");
+		String response = sendGetRequest(serviceURL, "?service=wps&request=GetCapabilities&language=en-US");
 		
 		// Read xml string using Xpath2
 		InputSource sourceWR = new InputSource(new StringReader(response));
@@ -217,7 +223,7 @@ public class GetCapabilitiesValidation extends CommonFixture {
 		
 		for (String param : paramList) {
 			//get response xml string
-			String exceptionResponse = sendGetRequest(service_url1, param);
+			String exceptionResponse = sendGetRequest(serviceURL, param);
 			
 			String exceptionNode = CheckXPath2("//ows:Exception[@exceptionCode='VersionNegotiationFailed']",exceptionResponse);
 			boolean exceptionResult = (exceptionNode.contains("XdmEmptySequence") ? false : true);
@@ -226,7 +232,7 @@ public class GetCapabilitiesValidation extends CommonFixture {
 		
 		String supportVersionParam = "?service=wps&request=GetCapabilities&language=en-US&AcceptVersions=1.0.0"; //support version
 		//get response xml string
-		String supportVersionResponse = sendGetRequest(service_url1, supportVersionParam);
+		String supportVersionResponse = sendGetRequest(serviceURL, supportVersionParam);
 		
 		String node = CheckXPath2("/wps:Capabilities[@version='1.0.0']",supportVersionResponse);
 		boolean supportVersionResult = (node.contains("XdmEmptySequence") ? false : true);
@@ -241,6 +247,7 @@ public class GetCapabilitiesValidation extends CommonFixture {
 	 */
 	@Test(enabled = true, groups = "A.4.2. GetCapabilities operation test module", description = "Verify that a server satisfies the requirements for generating and using the updateSequence parameter, if the server implements the AcceptFormats request parameter.")
 	public void HandlingUpdateSequenceValidation() throws IOException, SAXException{
+		String serviceURL 	= testSubjectUri.toString();
 		//send both right and wrong values of AcceptFormats parameter
 		List<String> paramList = new ArrayList<String>();
 		paramList.add(0,"?service=wps&request=GetCapabilities&AcceptVersions=1.0.0&AcceptFormats=text/xml");
@@ -248,11 +255,11 @@ public class GetCapabilitiesValidation extends CommonFixture {
 		
 		for (String param : paramList) {
 			//get response xml string
-			String response = sendGetRequest(service_url1, param);
+			String response = sendGetRequest(serviceURL, param);
 			//valid WPS GetCapabilities Response schema path
-			String xsdPath = "target/classes/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsGetCapabilities_response.xsd";
+			String xsdPath = "xsd/opengis/wps/1.0/wpsGetCapabilities_response.xsd";
 			
-			System.out.println("A.4.2.5: Send 'http get' request to: " + service_url1 + param);
+			System.out.println("A.4.2.5: Send 'http get' request to: " + serviceURL + param);
 			
 			//if xml is valid => true, not valid => false and quit test
 			boolean isValid = false;
@@ -271,8 +278,9 @@ public class GetCapabilitiesValidation extends CommonFixture {
 	 */
     @Test(groups = "A.4.2. GetCapabilities operation test module",description = "Verify that a server satisfies the requirements for using the Language parameter." )
     public void LanguageSelectionGetCapabilitiesValidation() throws IOException, ParserConfigurationException, SAXException, SaxonApiException{
+    	String serviceURL 	= testSubjectUri.toString();
     	// send GetCapabilities and check support versions
-    	String response = sendGetRequest(service_url1, "?service=wps&request=GetCapabilities&AcceptVersions=1.0.0");
+    	String response = sendGetRequest(serviceURL, "?service=wps&request=GetCapabilities&AcceptVersions=1.0.0");
     	
     	// Read xml string using Xpath2
     	InputSource sourceWR = new InputSource(new StringReader(response));
@@ -298,7 +306,7 @@ public class GetCapabilitiesValidation extends CommonFixture {
 		}
 		
 		for (String language : supportLanguageList) {
-			String languageSelectionResponse = sendGetRequest(service_url1,"?service=wps&request=GetCapabilities&language=" + language);
+			String languageSelectionResponse = sendGetRequest(serviceURL,"?service=wps&request=GetCapabilities&language=" + language);
 			
 			// Read xml string using Xpath2
 	    	InputSource source = new InputSource(new StringReader(languageSelectionResponse));
@@ -317,11 +325,12 @@ public class GetCapabilitiesValidation extends CommonFixture {
     
     //draft: test service_url1 only
 	public int sendHTTPGetRequestGetCapabilitiesOperationByVersion(String version) throws IOException {
+		String serviceURL 	= testSubjectUri.toString();
 		String param = "?service=wps&request=GetCapabilities&language=en-US&AcceptVersions=" + version;
-		HttpURLConnection connection = getConnection(service_url1, param);
+		HttpURLConnection connection = getConnection(serviceURL, param);
 
 		connection.setRequestMethod("GET");
-		System.out.println("A.4.2.4: Send 'http get' request to: " + service_url1 + param);
+		System.out.println("A.4.2.4: Send 'http get' request to: " + serviceURL + param);
 
 		Integer responseCode = connection.getResponseCode();
 		System.out.println("A.4.2.4: Response Code: " + responseCode);
@@ -361,7 +370,13 @@ public class GetCapabilitiesValidation extends CommonFixture {
 		wr.close();
 
 		// read response
-		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		BufferedReader in;
+		int responseCode = conn.getResponseCode();
+		if(responseCode > 299)
+			in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+	    else
+	    	in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		
 		String str;
 		while ((str = in.readLine()) != null) {
 			content.append(str);
@@ -375,7 +390,13 @@ public class GetCapabilitiesValidation extends CommonFixture {
         HttpURLConnection conn = GetConnection(serviceURL, param);
  
         // Read all the text returned by the server
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+     	BufferedReader in;
+     	int responseCode = conn.getResponseCode();
+     	if(responseCode > 299)
+     	    in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+     	else
+     	    in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+     		
         String str;
         while ((str = in.readLine()) != null) {
             response.append(str);
@@ -468,9 +489,9 @@ public class GetCapabilitiesValidation extends CommonFixture {
     
     public boolean validateXMLString(String inputXml, String schemaLocation)throws SAXException, IOException {
     	// build the schema
-    	SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-    	File schemaFile = new File(schemaLocation);
-    	Schema schema = factory.newSchema(schemaFile);
+    	//SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+    	//File schemaFile = new File(schemaLocation);
+    	Schema schema = ValidationUtils.createSchema(schemaLocation);
     	Validator validator = schema.newValidator();
     	// create a source from a string
     	Source source = new StreamSource(new StringReader(inputXml));

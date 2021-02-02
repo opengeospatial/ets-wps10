@@ -109,8 +109,10 @@ public class SuiteFixtureListener implements ISuiteListener {
             TestSuiteLogger.log(Level.FINE, logMsg.toString());
         }
         
-        //Set RawDataOutput test file
-        String executeRequestRawDataOutputParam = params.get(TestRunArg.EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT.toString());
+		/* 
+		 * Assign execute request uri to the testsuite attribute
+		*/
+        String executeRequestRawDataOutputParam = params.get(TestRunArg.EXECUTE_REQUEST_RAW_DATA_URI.toString());
         URI executeRequestRawDataOutputRef = URI.create(executeRequestRawDataOutputParam.trim());
         File executeRequestRawDataOutputFile = null;
         try {
@@ -124,8 +126,40 @@ public class SuiteFixtureListener implements ISuiteListener {
         } catch (Exception ex) {
             throw new RuntimeException("Failed to parse resource retrieved from " + executeRequestRawDataOutputRef, ex);
         }
-        suite.setAttribute(SuiteAttribute.EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT.getName(), executeRequestRawDataOutputDoc);
-
+        suite.setAttribute(SuiteAttribute.EXECUTE_REQUEST_RAW_DATA_URI.getName(), executeRequestRawDataOutputDoc);
+        
+//        RESPONSE DOCUMENT
+        String executeRequestResponseDocumentOutputParam = params.get(TestRunArg.EXECUTE_REQUEST_RESPONSE_DOCUMENT_URI.toString());
+        URI executeRequestResponseDocumentOutputRef = URI.create(executeRequestResponseDocumentOutputParam.trim());
+        File executeRequestResponseDocumentOutputFile = null;
+        try {
+        	executeRequestResponseDocumentOutputFile = URIUtils.dereferenceURI(executeRequestResponseDocumentOutputRef);
+        }catch (Exception ex) {
+            throw new RuntimeException("Failed to dereference resource located at " + executeRequestResponseDocumentOutputRef, ex);        	
+        }
+        Document executeRequestResponseDocumentOutputDoc = null;
+        try {
+            executeRequestResponseDocumentOutputDoc = URIUtils.parseURI(executeRequestResponseDocumentOutputFile.toURI());
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to parse resource retrieved from " + executeRequestResponseDocumentOutputRef, ex);
+        }        suite.setAttribute(SuiteAttribute.EXECUTE_REQUEST_RESPONSE_DOCUMENT_URI.getName(), executeRequestResponseDocumentOutputDoc);
+        
+//        UPDATING RESPONSE DOCUMENT
+        String executeRequestUpdatingResponseDocumentOutputParam = params.get(TestRunArg.EXECUTE_REQUEST_UPDATING_RESPONSE_DOCUMENT_URI.toString());
+        URI executeRequestUpdatingResponseDocumentOutputRef = URI.create(executeRequestUpdatingResponseDocumentOutputParam.trim());
+        File executeRequestUpdatingResponseDocumentOutputFile = null;
+        try {
+        	executeRequestUpdatingResponseDocumentOutputFile = URIUtils.dereferenceURI(executeRequestUpdatingResponseDocumentOutputRef);
+        }catch (Exception ex) {
+            throw new RuntimeException("Failed to dereference resource located at " + executeRequestUpdatingResponseDocumentOutputRef, ex);        	
+        }
+        Document executeRequestUpdatingResponseDocumentOutputDoc = null;
+        try {
+            executeRequestUpdatingResponseDocumentOutputDoc = URIUtils.parseURI(executeRequestUpdatingResponseDocumentOutputFile.toURI());
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to parse resource retrieved from " + executeRequestUpdatingResponseDocumentOutputRef, ex);
+        }
+        suite.setAttribute(SuiteAttribute.EXECUTE_REQUEST_UPDATING_RESPONSE_DOCUMENT_URI.getName(), executeRequestUpdatingResponseDocumentOutputDoc);
     }
 
     /**

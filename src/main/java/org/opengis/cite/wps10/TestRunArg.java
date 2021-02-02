@@ -10,7 +10,9 @@ public enum TestRunArg {
      * metadata about it.
      */
     IUT,
-    EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT,
+    EXECUTE_REQUEST_RAW_DATA_URI,
+    EXECUTE_REQUEST_RESPONSE_DOCUMENT_URI,
+    EXECUTE_REQUEST_UPDATING_RESPONSE_DOCUMENT_URI,
     XML,
 	XSD;
 
@@ -19,3 +21,4 @@ public enum TestRunArg {
         return name().toLowerCase();
     }
 }
+

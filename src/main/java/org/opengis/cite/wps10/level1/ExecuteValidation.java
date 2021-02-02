@@ -10,34 +10,44 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import org.opengis.cite.wps10.CommonFixture;
+import org.opengis.cite.wps10.Namespaces;
+//import org.opengis.cite.wps10.CommonFixture;
 import org.opengis.cite.wps10.DataFixture;
+//import org.opengis.cite.wps10.TestRunArg;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.util.*;
+import javafx.util.Pair;
+import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.s9api.XPathCompiler;
+import net.sf.saxon.s9api.XPathSelector;
+import net.sf.saxon.s9api.XdmNode;
+import net.sf.saxon.s9api.XdmValue;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 public class ExecuteValidation extends DataFixture {
-	
+//	String serviceURL 	= testSubjectUri.toString();
+		
 	/**
 	 * A.4.4. Execute Validation
 	 * Problem: How to identify a WPS is standard or not. Where is right WPS Sample?  
@@ -65,14 +75,14 @@ public class ExecuteValidation extends DataFixture {
 	 */
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.1. Accept Execute HTTP GET transferred Execute operation requests")
 	public void HTTPGETTransferredExecuteValidation() throws IOException, URISyntaxException { 
-		String serviceURL = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
-		String parameters = "service=WPS&request=Execute&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps";
+		String serviceURL = testSubjectUri.toString();
+		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0";
 		String req 		  = serviceURL + "?" + parameters;
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(req, "GET");
 		if(isValid) {
-			StringBuilder xmlResponse = sendRequestByGET(serviceURL, parameters);
+			StringBuilder xmlResponse = sendRequestByGET(serviceURL, "service=WPS&request=Execute&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps");
 			String xsdPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
 			status 	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;
 			msg 	= "The server does not satisfies all requirements on the Execute operation response";
@@ -95,8 +105,8 @@ public class ExecuteValidation extends DataFixture {
 	 */
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.2. Accept Execute HTTP POST transferred Execute operation requests") 
 	public void HTTPPOSTTransferredExecuteValidation() throws IOException, URISyntaxException { 
-		String serviceURL = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
-		String parameters = "service=WPS&request=Execute&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps";
+		String serviceURL = testSubjectUri.toString();
+		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0";
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
@@ -158,38 +168,22 @@ public class ExecuteValidation extends DataFixture {
 	 */
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.3. Execute operation response: raw data output") 
 	public void RawDataOutputExecuteValidation() throws IOException, URISyntaxException { 
-		String serviceURL = "https://demo.geo-solutions.it/geoserver/ows";
-		String parameters = "service=WPS&request=Execute&version=1.0.0&Identifier=JTS:buffers";
+		String serviceURL = testSubjectUri.toString();
+		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0";//&Identifier=" + identifier;
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
 		if(isValid) {
-			String xmlString  = getStringOfXmlDocument(this.executeRequestFileRawDataOutputSubject);
+			String xmlString  = getStringOfXmlDocument(executeRequestFileRawDataOutputSubject);
 			String xsdReqPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_request.xsd";
 			boolean isRequestValid = isXMLSchemaValid(xsdReqPath, xmlString.toString()) ? true : false;			
 			if(isRequestValid) {
-				Document reqDoc 	= convertStringToXMLDocument(xmlString.toString());
-				
-//				if(reqDoc.getElementsByTagName("wps:RawDataOutput").item(0).getAttributes().getNamedItem("mimeType") == null)
-//					System.out.println("Hello");
-				
-				//String reqMimeType	= reqDoc.getElementsByTagName("wps:RawDataOutput").item(0).getAttributes().getNamedItem("mimeType").getNodeValue();
-//				String resMimeType 	= getContentTypeByPOST(serviceURL, xmlString);
-				//Map<HttpURLConnection, StringBuilder> connectionResponseMap = getRequestByPOST(serviceURL, xmlString);
-				//Entry<HttpURLConnection, StringBuilder> entry = connectionResponseMap.entrySet().iterator().next();
-				//String resMimeType 	= entry.getKey().getContentType();
-				//status	= reqMimeType.equals(resMimeType) ? true : false;
-				
-				StringBuilder xmlLocationResponse = sendRequestByPOST(serviceURL, xmlString);
-				String xsdLocPath 	 = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
-				status	= isXMLSchemaValid(xsdLocPath, xmlLocationResponse.toString()) ? true : false;	
-				
+//				Document reqDoc 	= executeRequestFileRawDataOutputSubject;				
+//				String reqMimeType	= reqDoc.getElementsByTagName("wps:RawDataOutput").item(0).getAttributes().getNamedItem("mimeType").getNodeValue();
+//				String resMimeType 	= getRequestByPOST(serviceURL, xmlString).getKey().getContentType();
+//				status	= reqMimeType.equals(resMimeType) ? true : false;
+				status	= isRequestValid;
 				msg 	= "The server does not satisfies all requirements on the Execute operation response";
-
-//				StringBuilder xmlResponse = sendRequestByPOST(serviceURL, xmlString);
-//				String xsdPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/gml/3.1.1/base/gml.xsd";
-//				status	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;;
-//				msg 	= "The server does not satisfies all requirements on the Execute operation response";
 			}
 			else {
 				status	= isRequestValid;
@@ -214,43 +208,19 @@ public class ExecuteValidation extends DataFixture {
 	 */
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.4. Execute operation response: response document") 
 	public void ResponseDocumentExecuteValidation() throws IOException, URISyntaxException { 		
-		String serviceURL = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
-		String parameters = "service=WPS&request=Execute&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps";
+		String serviceURL = testSubjectUri.toString();		
+		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0";//&Identifier=" + identifier;
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
 		if(isValid) {
-			String xmlString  = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n" + 
-					"<wps:Execute service=\"WPS\" version=\"1.0.0\" xmlns:wps=\"http://www.opengis.net/wps/1.0.0\" xmlns:ows=\"http://www.opengis.net/ows/1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.opengis.net/wps/1.0.0\r\n" + 
-					"../wpsExecute_request.xsd\">\r\n" + 
-					"	<ows:Identifier>org.n52.wps.server.algorithm.test.LongRunningDummyTestClass</ows:Identifier>\r\n" + 
-					"	<wps:DataInputs>\r\n" + 
-					"		<wps:Input>\r\n" + 
-					"			<ows:Identifier>BBOXInputData</ows:Identifier>\r\n" + 
-					"            <wps:Data>\r\n" + 
-					"                <wps:BoundingBoxData crs=\"urn:ogc:def:crs:EPSG:6.6:4328\" dimensions=\"2\">\r\n" + 
-					"                    <ows:LowerCorner>12.513 41.87</ows:LowerCorner>\r\n" + 
-					"                    <ows:UpperCorner>14.996 43.333</ows:UpperCorner>\r\n" + 
-					"                </wps:BoundingBoxData>\r\n" + 
-					"            </wps:Data>\r\n" + 
-					"		</wps:Input>\r\n" + 
-					"	</wps:DataInputs>\r\n" + 
-					"	<wps:ResponseForm>\r\n" + 
-					"		<wps:ResponseDocument storeExecuteResponse=\"true\" lineage=\"true\" status=\"true\">\r\n" + 
-					"			<wps:Output asReference=\"true\">\r\n" + 
-					"				<ows:Identifier>BBOXOutputData</ows:Identifier>\r\n" + 
-					"				<ows:Title>BBOXOutputData</ows:Title>\r\n" + 
-					"				<ows:Abstract>BBOXOutputData</ows:Abstract>\r\n" + 
-					"			</wps:Output>\r\n" + 
-					"		</wps:ResponseDocument>\r\n" + 
-					"	</wps:ResponseForm>\r\n" + 
-					"</wps:Execute>";
+			String xmlString  = getStringOfXmlDocument(executeRequestFileResponseDocumentOutputSubject);
 			String xsdReqPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_request.xsd";
 			boolean isRequestValid = isXMLSchemaValid(xsdReqPath, xmlString.toString()) ? true : false;			
-			if(isRequestValid) {
+			if(isRequestValid) {				
 				StringBuilder xmlResponse = sendRequestByPOST(serviceURL, xmlString);
 				String xsdPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
-				status	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;;
+				status	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;
 				msg 	= "The server does not satisfies all requirements on the Execute operation response";
 			}
 			else {
@@ -278,41 +248,19 @@ public class ExecuteValidation extends DataFixture {
 	 */
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.5. Execute operation response: updating of response document") 
 	public void UpdatingResponseDocumentExecuteValidation() throws IOException, URISyntaxException { 
-		String serviceURL = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
-		String parameters = "service=WPS&request=Execute&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps";
+		String serviceURL = testSubjectUri.toString();
+//		String identifier = CheckXPath2("//ows:Identifier", executeRequestFileUpdatingResponseDocumentOutputSubject);
+		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0";//&Identifier=" + identifier;
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
 		if(isValid) {
-			String xmlString  = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n" + 
-					"<wps:Execute service=\"WPS\" version=\"1.0.0\" xmlns:wps=\"http://www.opengis.net/wps/1.0.0\" xmlns:ows=\"http://www.opengis.net/ows/1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.opengis.net/wps/1.0.0\r\n" + 
-					"../wpsExecute_request.xsd\">\r\n" + 
-					"	<ows:Identifier>org.n52.wps.server.algorithm.test.LongRunningDummyTestClass</ows:Identifier>\r\n" + 
-					"	<wps:DataInputs>\r\n" + 
-					"		<wps:Input>\r\n" + 
-					"			<ows:Identifier>BBOXInputData</ows:Identifier>\r\n" + 
-					"            <wps:Data>\r\n" + 
-					"                <wps:BoundingBoxData crs=\"urn:ogc:def:crs:EPSG:6.6:4328\" dimensions=\"2\">\r\n" + 
-					"                    <ows:LowerCorner>12.513 41.87</ows:LowerCorner>\r\n" + 
-					"                    <ows:UpperCorner>14.996 43.333</ows:UpperCorner>\r\n" + 
-					"                </wps:BoundingBoxData>\r\n" + 
-					"            </wps:Data>\r\n" + 
-					"		</wps:Input>\r\n" + 
-					"	</wps:DataInputs>\r\n" + 
-					"	<wps:ResponseForm>\r\n" + 
-					"		<wps:ResponseDocument storeExecuteResponse=\"true\" lineage=\"true\" status=\"true\">\r\n" + 
-					"			<wps:Output asReference=\"true\">\r\n" + 
-					"				<ows:Identifier>BBOXOutputData</ows:Identifier>\r\n" + 
-					"				<ows:Title>BBOXOutputData</ows:Title>\r\n" + 
-					"				<ows:Abstract>BBOXOutputData</ows:Abstract>\r\n" + 
-					"			</wps:Output>\r\n" + 
-					"		</wps:ResponseDocument>\r\n" + 
-					"	</wps:ResponseForm>\r\n" + 
-					"</wps:Execute>";
+			String xmlString  = getStringOfXmlDocument(executeRequestFileUpdatingResponseDocumentOutputSubject);
 			String xsdReqPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_request.xsd";
 			boolean isRequestValid = isXMLSchemaValid(xsdReqPath, xmlString.toString()) ? true : false;			
 			if(isRequestValid) {
 				StringBuilder xmlResponse = sendRequestByPOST(serviceURL, xmlString);
+//				Document reqDoc 	= executeRequestFileUpdatingResponseDocumentOutputSubject;
 				String xsdPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
 				boolean isResponseValid = isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;
 				if(isResponseValid) {
@@ -353,8 +301,9 @@ public class ExecuteValidation extends DataFixture {
 	 */
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.6. Language selection") 
 	public void LanguageSelectionExecuteValidation() throws IOException, URISyntaxException { 
-		String serviceURL = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
-		String parameters = "service=WPS&request=Execute&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps";
+//		String serviceURL = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
+		String serviceURL = testSubjectUri.toString();
+		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps";
 		String req 		  = serviceURL + "?" + parameters;
 		boolean status	  = false;
 		String msg 		  = null;
@@ -389,7 +338,8 @@ public class ExecuteValidation extends DataFixture {
 	 */
 	@Test(enabled=true, groups = "A.4.1. All operations implemented test module", description = "A.4.1.2. HTTP response status code") 
 	public void HTTPResponseStatusCode() throws IOException, URISyntaxException { 
-		String serviceURL = "https://demo.geo-solutions.it/geoserver/ows";
+//		String serviceURL = "https://demo.geo-solutions.it/geoserver/ows";
+		String serviceURL = testSubjectUri.toString();
 		String parameters = "service=WPS&version=1.0.0&request=DescribeProcess&identifier=JTS:Invalid";
 		boolean status	  = false;
 		String msg 		  = null;
@@ -413,20 +363,16 @@ public class ExecuteValidation extends DataFixture {
 		Assert.assertTrue(status, msg); 		
 	}
 	
-	private Map<String, String> KVPfromURL(String URL) throws UnsupportedEncodingException {
-	    int i = URL.indexOf("?");
-	    Map<String, String> paramsMap = new HashMap<>();
-	    if (i > -1) {
-	        String searchURL = URL.substring(URL.indexOf("?") + 1);
-	        String params[] = searchURL.split("&");
-
-	        for (String param : params) {
-	            String temp[] = param.split("=");
-	            paramsMap.put(temp[0], java.net.URLDecoder.decode(temp[1], "UTF-8"));
-	        }
-	    }
-	    return paramsMap;
-	}
+	/*
+	 * private Map<String, String> KVPfromURL(String URL) throws
+	 * UnsupportedEncodingException { int i = URL.indexOf("?"); Map<String, String>
+	 * paramsMap = new HashMap<>(); if (i > -1) { String searchURL =
+	 * URL.substring(URL.indexOf("?") + 1); String params[] = searchURL.split("&");
+	 * 
+	 * for (String param : params) { String temp[] = param.split("=");
+	 * paramsMap.put(temp[0], java.net.URLDecoder.decode(temp[1], "UTF-8")); } }
+	 * return paramsMap; }
+	 */
 	
 	private static StringBuilder sendRequestByGET(String requestURL, String parameters) throws IOException {
 		URL obj = new URL(requestURL + "?" + parameters);	
@@ -481,57 +427,39 @@ public class ExecuteValidation extends DataFixture {
 		}
 	}
 
-	private static String getContentTypeByPOST(String requestURL, String XML) throws IOException {		
-		URL obj = new URL(requestURL);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestProperty("Content-Type", "application/xml");
-		con.setRequestMethod("POST");
-		
-		con.setDoOutput(true);
-		OutputStream os = con.getOutputStream();
-		os.write(XML.getBytes());
-		os.flush();
-		os.close();
-		
-		int responseCode = con.getResponseCode();
-		if (responseCode == HttpURLConnection.HTTP_OK) { 
-			return con.getContentType().toString();
-		} else {
-			System.out.println("HTTP POST request not worked");
-			return null;
-		}
-	}
+	/*
+	 * private static String getContentTypeByPOST(String requestURL, String XML)
+	 * throws IOException { URL obj = new URL(requestURL); HttpURLConnection con =
+	 * (HttpURLConnection) obj.openConnection();
+	 * con.setRequestProperty("Content-Type", "application/xml");
+	 * con.setRequestMethod("POST");
+	 * 
+	 * con.setDoOutput(true); OutputStream os = con.getOutputStream();
+	 * os.write(XML.getBytes()); os.flush(); os.close();
+	 * 
+	 * int responseCode = con.getResponseCode(); if (responseCode ==
+	 * HttpURLConnection.HTTP_OK) { return con.getContentType().toString(); } else {
+	 * System.out.println("HTTP POST request not worked"); return null; } }
+	 */
 	
-	private static Map<HttpURLConnection, StringBuilder> getRequestByPOST(String requestURL, String XML) throws IOException {		
-		URL obj = new URL(requestURL);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestProperty("Content-Type", "application/xml");
-		con.setRequestMethod("POST");
-		
-		con.setDoOutput(true);
-		OutputStream os = con.getOutputStream();
-		os.write(XML.getBytes());
-		os.flush();
-		os.close();
-		
-		int responseCode = con.getResponseCode();
-		if (responseCode == HttpURLConnection.HTTP_OK) { 
-			InputStream inputStream = con.getInputStream();
-			byte[] res = new byte[2048];
-			int i = 0;
-			StringBuilder response = new StringBuilder();
-			while ((i = inputStream.read(res)) != -1) {
-				response.append(new String(res, 0, i));
-			}
-			inputStream.close();
-			Map<HttpURLConnection, StringBuilder> connectionResponseMap = new HashMap<HttpURLConnection, StringBuilder>();
-			connectionResponseMap.put(con, response);
-			return connectionResponseMap;
-		} else {
-			System.out.println("HTTP POST request not worked");
-			return null;
-		}
-	}
+	/*
+	 * private static Pair<HttpURLConnection, StringBuilder> getRequestByPOST(String
+	 * requestURL, String XML) throws IOException { URL obj = new URL(requestURL);
+	 * HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+	 * con.setRequestProperty("Content-Type", "application/xml");
+	 * con.setRequestMethod("POST");
+	 * 
+	 * con.setDoOutput(true); OutputStream os = con.getOutputStream();
+	 * os.write(XML.getBytes()); os.flush(); os.close();
+	 * 
+	 * int responseCode = con.getResponseCode(); if (responseCode ==
+	 * HttpURLConnection.HTTP_OK) { InputStream inputStream = con.getInputStream();
+	 * byte[] res = new byte[2048]; int i = 0; StringBuilder response = new
+	 * StringBuilder(); while ((i = inputStream.read(res)) != -1) {
+	 * response.append(new String(res, 0, i)); } inputStream.close(); return new
+	 * Pair<HttpURLConnection, StringBuilder>(con, response); } else {
+	 * System.out.println("HTTP POST request not worked"); return null; } }
+	 */
 	
 	private static boolean isHTTPValid(String urlString, String reqMethod) throws IOException {
         URL url = new URL(urlString);
@@ -553,7 +481,73 @@ public class ExecuteValidation extends DataFixture {
         }
         return true;
     }
-
+	
+	public Map<String, String> getStandardBindings() {
+    	Map<String, String> nsBindings = new HashMap<String, String>();    	
+        nsBindings.put(Namespaces.OWS, "ows");
+        nsBindings.put(Namespaces.XLINK, "xlink");
+        nsBindings.put(Namespaces.GML, "gml");
+        nsBindings.put(Namespaces.WPS, "wps");
+        return nsBindings;
+    }
+	
+	/**
+	 * Check XPath2.0
+	 * 
+	 * @param xpath
+	 *            String denoting an xpath syntax
+	 * @return XdmValue converted to string
+	 */
+	public String CheckXPath2(String xpath, Document testSubject) {
+		XdmValue xdmValue = null;
+		try {
+			xdmValue = evaluateXPath2(new DOMSource(testSubject), xpath, getStandardBindings());
+		} catch (SaxonApiException e) {
+			e.printStackTrace();
+		};
+		return xdmValue.toString();
+	}
+	
+	/**
+     * Evaluates an XPath 2.0 expression using the Saxon s9api interfaces.
+     * 
+     * @param xmlSource
+     *            The XML Source.
+     * @param expr
+     *            The XPath expression to be evaluated.
+     * @param nsBindings
+     *            A collection of namespace bindings required to evaluate the
+     *            XPath expression, where each entry maps a namespace URI (key)
+     *            to a prefix (value); this may be {@code null} if not needed.
+     * @return An XdmValue object representing a value in the XDM data model;
+     *         this is a sequence of zero or more items, where each item is
+     *         either an atomic value or a node.
+     * @throws SaxonApiException
+     *             If an error occurs while evaluating the expression; this
+     *             always wraps some other underlying exception.
+     */
+    public XdmValue evaluateXPath2(Source xmlSource, String expr,
+            Map<String, String> nsBindings) throws SaxonApiException {
+        Processor proc = new Processor(false);
+        XPathCompiler compiler = proc.newXPathCompiler();
+       if (null != nsBindings) {
+            for (String nsURI : nsBindings.keySet()) {
+                compiler.declareNamespace(nsBindings.get(nsURI), nsURI);
+            }
+        }
+        XPathSelector xpath = compiler.compile(expr).load();
+        net.sf.saxon.s9api.DocumentBuilder builder = proc.newDocumentBuilder();
+        XdmNode node = null;
+        if (DOMSource.class.isInstance(xmlSource)) {
+            DOMSource domSource = (DOMSource) xmlSource;
+            node = builder.wrap(domSource.getNode());
+        } else {
+            node = builder.build(xmlSource);
+        }
+        xpath.setContextItem(node);
+        return xpath.evaluate();
+    }
+	
 	private static Document convertStringToXMLDocument(String xmlString) 
     {
         //Parser that produces DOM object trees from XML content
@@ -580,23 +574,12 @@ public class ExecuteValidation extends DataFixture {
 	private static String getStringOfXmlDocument(Document xmlDocument)
     {
     	String xmlString = "";
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer transformer;
-        try {
-            transformer = tf.newTransformer();
-             
-            // Uncomment if you do not require XML declaration
-            // transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-             
-            //A character stream that collects its output in a string buffer, 
-            //which can then be used to construct a string.
-            StringWriter writer = new StringWriter();
-     
-            //transform document to string 
-            transformer.transform(new DOMSource(xmlDocument), new StreamResult(writer));
-     
-            xmlString = writer.getBuffer().toString();   
-            System.out.println(xmlString);                      //Print to console or logs
+    	TransformerFactory tf = TransformerFactory.newInstance();
+        try {        	
+        	Transformer t = tf.newTransformer();
+        	StringWriter sw = new StringWriter();
+        	t.transform(new DOMSource(xmlDocument), new StreamResult(sw));
+        	xmlString = sw.toString(); 
             
         } 
         catch (TransformerException e) 
@@ -610,6 +593,5 @@ public class ExecuteValidation extends DataFixture {
         
         return xmlString;
     }
-
 }
 

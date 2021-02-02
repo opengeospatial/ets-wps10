@@ -61,6 +61,9 @@ public class DataFixture {
      */
     protected XSModel model;
     protected Document executeRequestFileRawDataOutputSubject;
+    protected Document executeRequestFileResponseDocumentOutputSubject;
+    protected Document executeRequestFileUpdatingResponseDocumentOutputSubject;
+    
 	
     public DataFixture() {
     }
@@ -87,13 +90,22 @@ public class DataFixture {
                 SuiteAttribute.TEST_SUBJECT_URI.getName());
         if ((null != uriObj)){        	
             this.testSubjectUri = URI.class.cast(uriObj);
-            //System.out.println(this.testSubjectUri.toString());        	
+            System.out.println(this.testSubjectUri.toString());        	
         }
         
-        Object executeRequestFileRawDataOutputObj = testContext.getSuite().getAttribute(
-                SuiteAttribute.EXECUTE_REQUEST_FILE_RAW_DATA_OUTPUT.getName());
+        Object executeRequestFileRawDataOutputObj = testContext.getSuite().getAttribute(SuiteAttribute.EXECUTE_REQUEST_RAW_DATA_URI.getName());
         if((null != executeRequestFileRawDataOutputObj) && Document.class.isAssignableFrom(executeRequestFileRawDataOutputObj.getClass())) {
         	this.executeRequestFileRawDataOutputSubject = Document.class.cast(executeRequestFileRawDataOutputObj);
+        }
+        
+        Object executeRequestFileResponseDocumentOutputObj = testContext.getSuite().getAttribute(SuiteAttribute.EXECUTE_REQUEST_RESPONSE_DOCUMENT_URI.getName());
+        if((null != executeRequestFileResponseDocumentOutputObj) && Document.class.isAssignableFrom(executeRequestFileResponseDocumentOutputObj.getClass())) {
+        	this.executeRequestFileResponseDocumentOutputSubject = Document.class.cast(executeRequestFileResponseDocumentOutputObj);
+        }
+        
+        Object executeRequestFileUpdatingResponseDocumentOutputObj = testContext.getSuite().getAttribute(SuiteAttribute.EXECUTE_REQUEST_UPDATING_RESPONSE_DOCUMENT_URI.getName());
+        if((null != executeRequestFileUpdatingResponseDocumentOutputObj) && Document.class.isAssignableFrom(executeRequestFileUpdatingResponseDocumentOutputObj.getClass())) {
+        	this.executeRequestFileUpdatingResponseDocumentOutputSubject = Document.class.cast(executeRequestFileUpdatingResponseDocumentOutputObj);
         }
 
     }
