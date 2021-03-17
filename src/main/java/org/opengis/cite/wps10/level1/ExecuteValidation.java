@@ -12,6 +12,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.opengis.cite.wps10.Namespaces;
+import org.opengis.cite.wps10.util.ValidationUtils;
 //import org.opengis.cite.wps10.CommonFixture;
 import org.opengis.cite.wps10.DataFixture;
 //import org.opengis.cite.wps10.TestRunArg;
@@ -76,14 +77,14 @@ public class ExecuteValidation extends DataFixture {
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.1. Accept Execute HTTP GET transferred Execute operation requests")
 	public void HTTPGETTransferredExecuteValidation() throws IOException, URISyntaxException { 
 		String serviceURL = testSubjectUri.toString();
-		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0";
+		String parameters = "service=wps&request=GetCapabilities&version=1.0.0";
 		String req 		  = serviceURL + "?" + parameters;
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(req, "GET");
 		if(isValid) {
-			StringBuilder xmlResponse = sendRequestByGET(serviceURL, "service=WPS&request=Execute&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps");
-			String xsdPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
+			StringBuilder xmlResponse = sendRequestByGET(serviceURL, "service=wps&request=Execute&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps");
+			String xsdPath = "xsd/opengis/wps/1.0/wpsExecute_response.xsd";
 			status 	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;
 			msg 	= "The server does not satisfies all requirements on the Execute operation response";
 		} 
@@ -106,7 +107,7 @@ public class ExecuteValidation extends DataFixture {
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.2. Accept Execute HTTP POST transferred Execute operation requests") 
 	public void HTTPPOSTTransferredExecuteValidation() throws IOException, URISyntaxException { 
 		String serviceURL = testSubjectUri.toString();
-		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0";
+		String parameters = "service=wps&request=GetCapabilities&version=1.0.0";
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
@@ -136,11 +137,11 @@ public class ExecuteValidation extends DataFixture {
 					"		</wps:ResponseDocument>\r\n" + 
 					"	</wps:ResponseForm>\r\n" + 
 					"</wps:Execute>";
-			String xsdReqPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_request.xsd";
+			String xsdReqPath = "xsd/opengis/wps/1.0/wpsExecute_request.xsd";
 			boolean isRequestValid = isXMLSchemaValid(xsdReqPath, xmlString.toString()) ? true : false;			
 			if(isRequestValid) {
 				StringBuilder xmlResponse = sendRequestByPOST(serviceURL, xmlString);
-				String xsdPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
+				String xsdPath = "xsd/opengis/wps/1.0/wpsExecute_response.xsd";
 				status	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;;
 				msg 	= "The server does not satisfies all requirements on the Execute operation response";
 			}
@@ -169,13 +170,13 @@ public class ExecuteValidation extends DataFixture {
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.3. Execute operation response: raw data output") 
 	public void RawDataOutputExecuteValidation() throws IOException, URISyntaxException { 
 		String serviceURL = testSubjectUri.toString();
-		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0";//&Identifier=" + identifier;
+		String parameters = "service=wps&request=GetCapabilities&version=1.0.0";//&Identifier=" + identifier;
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
 		if(isValid) {
 			String xmlString  = getStringOfXmlDocument(executeRequestFileRawDataOutputSubject);
-			String xsdReqPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_request.xsd";
+			String xsdReqPath = "xsd/opengis/wps/1.0/wpsExecute_request.xsd";
 			boolean isRequestValid = isXMLSchemaValid(xsdReqPath, xmlString.toString()) ? true : false;			
 			if(isRequestValid) {
 //				Document reqDoc 	= executeRequestFileRawDataOutputSubject;				
@@ -209,17 +210,17 @@ public class ExecuteValidation extends DataFixture {
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.4. Execute operation response: response document") 
 	public void ResponseDocumentExecuteValidation() throws IOException, URISyntaxException { 		
 		String serviceURL = testSubjectUri.toString();		
-		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0";//&Identifier=" + identifier;
+		String parameters = "service=wps&request=GetCapabilities&version=1.0.0";//&Identifier=" + identifier;
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
 		if(isValid) {
 			String xmlString  = getStringOfXmlDocument(executeRequestFileResponseDocumentOutputSubject);
-			String xsdReqPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_request.xsd";
+			String xsdReqPath = "xsd/opengis/wps/1.0/wpsExecute_request.xsd";
 			boolean isRequestValid = isXMLSchemaValid(xsdReqPath, xmlString.toString()) ? true : false;			
 			if(isRequestValid) {				
 				StringBuilder xmlResponse = sendRequestByPOST(serviceURL, xmlString);
-				String xsdPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
+				String xsdPath = "xsd/opengis/wps/1.0/wpsExecute_response.xsd";
 				status	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;
 				msg 	= "The server does not satisfies all requirements on the Execute operation response";
 			}
@@ -250,24 +251,24 @@ public class ExecuteValidation extends DataFixture {
 	public void UpdatingResponseDocumentExecuteValidation() throws IOException, URISyntaxException { 
 		String serviceURL = testSubjectUri.toString();
 //		String identifier = CheckXPath2("//ows:Identifier", executeRequestFileUpdatingResponseDocumentOutputSubject);
-		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0";//&Identifier=" + identifier;
+		String parameters = "service=wps&request=GetCapabilities&version=1.0.0";//&Identifier=" + identifier;
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
 		if(isValid) {
 			String xmlString  = getStringOfXmlDocument(executeRequestFileUpdatingResponseDocumentOutputSubject);
-			String xsdReqPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_request.xsd";
+			String xsdReqPath = "xsd/opengis/wps/1.0/wpsExecute_request.xsd";
 			boolean isRequestValid = isXMLSchemaValid(xsdReqPath, xmlString.toString()) ? true : false;			
 			if(isRequestValid) {
 				StringBuilder xmlResponse = sendRequestByPOST(serviceURL, xmlString);
 //				Document reqDoc 	= executeRequestFileUpdatingResponseDocumentOutputSubject;
-				String xsdPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
+				String xsdPath = "xsd/opengis/wps/1.0/wpsExecute_response.xsd";
 				boolean isResponseValid = isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;
 				if(isResponseValid) {
 					Document locationDoc = convertStringToXMLDocument(xmlResponse.toString());
 					String location 	 = locationDoc.getFirstChild().getAttributes().getNamedItem("statusLocation").getNodeValue();
 					StringBuilder xmlLocationResponse = sendRequestByGET(location, "");
-					String xsdLocPath 	 = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
+					String xsdLocPath 	 = "xsd/opengis/wps/1.0/wpsExecute_response.xsd";
 					status	= isXMLSchemaValid(xsdLocPath, xmlLocationResponse.toString()) ? true : false;	
 					msg 	= "The server does not satisfies all requirements on the Execute operation response";
 				}
@@ -303,7 +304,7 @@ public class ExecuteValidation extends DataFixture {
 	public void LanguageSelectionExecuteValidation() throws IOException, URISyntaxException { 
 //		String serviceURL = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
 		String serviceURL = testSubjectUri.toString();
-		String parameters = "service=WPS&request=GetCapabilities&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps";
+		String parameters = "service=wps&request=GetCapabilities&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps";
 		String req 		  = serviceURL + "?" + parameters;
 		boolean status	  = false;
 		String msg 		  = null;
@@ -312,7 +313,7 @@ public class ExecuteValidation extends DataFixture {
 			boolean isLanguageValid   = isHTTPValid(req + "&Language=en-US", "GET");
 			if(isLanguageValid) {
 				StringBuilder xmlResponse = sendRequestByGET(serviceURL, parameters);
-				String xsdPath = "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
+				String xsdPath = "xsd/opengis/wps/1.0/wpsExecute_response.xsd";
 				status 	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;
 				msg 	= "The server does not satisfies all requirements on the Execute operation response";
 			}
@@ -340,7 +341,7 @@ public class ExecuteValidation extends DataFixture {
 	public void HTTPResponseStatusCode() throws IOException, URISyntaxException { 
 //		String serviceURL = "https://demo.geo-solutions.it/geoserver/ows";
 		String serviceURL = testSubjectUri.toString();
-		String parameters = "service=WPS&version=1.0.0&request=DescribeProcess&identifier=JTS:Invalid";
+		String parameters = "service=wps&version=1.0.0&request=DescribeProcess&identifier=JTS:Invalid";
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
@@ -471,9 +472,10 @@ public class ExecuteValidation extends DataFixture {
 	
 	private static boolean isXMLSchemaValid(String xsdPath, String xmlString){        
         try {
-            SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = factory.newSchema(new File(xsdPath));
+            //SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = ValidationUtils.createSchema(xsdPath);
             Validator validator = schema.newValidator();
+
             validator.validate(new StreamSource(new StringReader(xmlString)));
         } catch (IOException | SAXException e) {
             System.out.println("Exception: "+e.getMessage());

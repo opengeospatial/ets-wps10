@@ -183,7 +183,7 @@ public class AllOperationServerValidation extends DataFixture {
 	@Test(enabled = true, groups = "A.4.1. All operations implemented test module", description = "Verify that the rules and conventions governing the use of HTTP are observed") 
 	public void ExecuteHttpProtocolUsageValidation() throws IOException,URISyntaxException { 
 		String serviceURL 	= testSubjectUri.toString();
-		String param = "?service=WPS&version=1.0.0&request=Execute&identifier=org.n52.wps.server.r.demo.uniform.table&DataInputs=min=0;max=10;n=5;";
+		String param = "?service=wps&version=1.0.0&request=Execute&identifier=org.n52.wps.server.r.demo.uniform.table&DataInputs=min=0;max=10;n=5;";
 		HttpURLConnection connection = GetConnection(serviceURL, param);
 	 
 		connection.setRequestMethod("GET");
@@ -208,7 +208,7 @@ public class AllOperationServerValidation extends DataFixture {
 	 * public void ExecuteHttpResponseStatusCodeValidation() throws IOException,
 	 * URISyntaxException { String serviceURL = testSubjectUri.toString(); String
 	 * parameters =
-	 * "service=WPS&request=GetCapabilities&version=1.0.0";//&Identifier=" +
+	 * "service=wps&request=GetCapabilities&version=1.0.0";//&Identifier=" +
 	 * identifier; boolean status = false; String msg = null; boolean isValid =
 	 * isHTTPValid(serviceURL + "?" + parameters, "GET"); if(isValid) { String
 	 * xmlString =

@@ -60,7 +60,11 @@ public class GetCapabilitiesValidation extends DataFixture {
 		List<String> params = new ArrayList<String>();
 		params.add(0,"?service=wps&request=GetCapabilities");
 		params.add(1,"?service=wps&request=GetCapabilities&AcceptVersions=1.0.0");
-		params.add(2,"?service=wps&request=GetCapabilities&AcceptVersions=1.0.0&language=en-CA");
+		params.add(2,"?service=wps&request=GetCapabilities&aCcepTVersioNS=1.0.0");
+		
+		//TODO: wps search whole project to be upper case, Check the http status code
+		
+		//params.add(2,"?service=wps&request=GetCapabilities&AcceptVersions=1.0.0&language=en-CA");
 		
 		//HTTP GET transferred KVP GetCapabilities operation request and receive the response code in a HashSet
 		HashSet<Integer> res = new HashSet<Integer>();
@@ -71,7 +75,11 @@ public class GetCapabilitiesValidation extends DataFixture {
 			
 			Integer responseCode = connection.getResponseCode();
 			
-			res.add(responseCode);			
+			res.add(responseCode);
+			
+			//Check http status code
+			Assert.assertTrue(responseCode < 300, "The server does not provides the same response when the same parameter names use different cases and combinations of cases");
+			
 		}
 		
 		//If HashSet size() is 1 ==> true; else ==> false
