@@ -53,19 +53,26 @@ public class VerifyTestNGController {
 
     @Test
     public void doTestRun() throws Exception {
-//    	URL testSubject = getClass().getResource("/atom-feed-2.xml");
-//        this.testRunProps.setProperty(TestRunArg.IUT.toString(), testSubject
-//                .toURI().toString());
-//        ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
-//        this.testRunProps.storeToXML(outStream, "Integration test");
-//        Document testRunArgs = docBuilder.parse(new ByteArrayInputStream(
-//                outStream.toByteArray()));
-//        TestNGController controller = new TestNGController();
-//        Source results = controller.doTestRun(testRunArgs);
-//        String xpath = "/testng-results/@failed";
-//        XdmValue failed = XMLUtils.evaluateXPath2(results, xpath, null);
-//        int numFailed = Integer.parseInt(failed.getUnderlyingValue()
-//                .getStringValue());
-//        assertEquals("Unexpected number of fail verdicts.", 2, numFailed);		 
+    	//URL testSubject = getClass().getResource("/atom-feed-2.xml");
+    	URL rawSubject = getClass().getResource("/wps_execute_request_complexdata.xml");
+    	URL responseSubject = getClass().getResource("/wps_execute_request_response_document.xml");
+    	URL updateResponseSubject = getClass().getResource("/wps_execute_request_updating_response_document.xml");
+    	
+        this.testRunProps.setProperty(TestRunArg.IUT.toString(), "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService");
+        this.testRunProps.setProperty(TestRunArg.EXECUTE_REQUEST_RAW_DATA_URI.toString(), rawSubject.toURI().toString());
+        this.testRunProps.setProperty(TestRunArg.EXECUTE_REQUEST_RESPONSE_DOCUMENT_URI.toString(), responseSubject.toURI().toString());
+        this.testRunProps.setProperty(TestRunArg.EXECUTE_REQUEST_UPDATING_RESPONSE_DOCUMENT_URI.toString(), updateResponseSubject.toURI().toString());
+        
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
+        this.testRunProps.storeToXML(outStream, "Integration test");
+        Document testRunArgs = docBuilder.parse(new ByteArrayInputStream(
+                outStream.toByteArray()));
+        TestNGController controller = new TestNGController();
+        Source results = controller.doTestRun(testRunArgs);
+        String xpath = "/testng-results/@failed";
+        XdmValue failed = XMLUtils.evaluateXPath2(results, xpath, null);
+        int numFailed = Integer.parseInt(failed.getUnderlyingValue()
+                .getStringValue());
+        assertEquals("Unexpected number of fail verdicts.", 0, numFailed);		 
     }
 }
