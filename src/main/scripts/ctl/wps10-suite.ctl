@@ -36,10 +36,9 @@
 				 Fifth Edition</li>
 				 <li><a href="http://www.w3.org/TR/xmlbase/">XML Base</a>, Second Edition</li>
                </ul>
-               <p>Two conformance levels are defined:</p>
+               <p>One conformance level is defined:</p>
                <ul>
                  <li>Level 1</li>
-                 <li>Level 2</li>
                </ul>
              </div>
              <fieldset style="background:#ccffff">
@@ -60,6 +59,14 @@
                  <input name="doc" id="doc" size="128" type="file" />
                </p> 
                -->
+               <!-- URL of WPS HTTP GET (Include HTTP GET TRANSFER, HTTP GET EXECUTE and LANGUAGE SELECTION -->
+               <p>
+                 <label for="http_get_uri">
+                   <h4 style="margin-bottom: 0.5em">Sample for testing WPS HTTP GET</h4>
+                 </label>
+                 <input id="http_get_uri" name="http_get_uri" size="128" type="text" value="http://www.google.com/" />
+               </p>
+               <!-- CLOSE -->
                <!-- UPLOAD TEST FILE -->
                <p>
                  <label for="fileExecuteRequestFileRawDataOutput">
@@ -84,8 +91,6 @@
                  <label for="level">Conformance class: </label>
                  <input id="level-1" type="radio" name="level" value="1" checked="checked" />
                  <label for="level-1"> Level 1 | </label>
-                 <input id="level-2" type="radio" name="level" value="2" />
-                 <label class="form-label" for="level-2"> Level 2</label>
                </p>
              </fieldset>
              <p>
@@ -114,6 +119,9 @@
           </entry>
           <entry key="ics"><xsl:value-of select="$form-data/values/value[@key='level']"/></entry>
           <!-- RELATED VARIABLE -->
+          <entry key="execute_http_get_uri">
+            <xsl:value-of select="normalize-space($form-data/values/value[@key='http_get_uri'])"/> <!-- May need to check empty -->
+          </entry>
           <entry key="execute_request_raw_data_uri"><xsl:copy-of select="concat('file:///', $execute-request-raw-data-output-file)" /></entry>
           <entry key="execute_request_response_document_uri"><xsl:copy-of select="concat('file:///', $execute-request-response-document-file)" /></entry>
           <entry key="execute_request_updating_response_document_uri"><xsl:copy-of select="concat('file:///', $execute-request-updating-response-document-file)" /></entry>

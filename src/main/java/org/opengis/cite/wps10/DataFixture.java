@@ -60,6 +60,7 @@ public class DataFixture {
      * An XSModel object representing a GML application schema.
      */
     protected XSModel model;
+    protected URI executeHttpGetUri;
     protected Document executeRequestFileRawDataOutputSubject;
     protected Document executeRequestFileResponseDocumentOutputSubject;
     protected Document executeRequestFileUpdatingResponseDocumentOutputSubject;
@@ -93,6 +94,14 @@ public class DataFixture {
             System.out.println(this.testSubjectUri.toString());        	
         }
         
+        /* START OF PARAMETERS */        
+        Object excuteHttpGetUriObj = testContext.getSuite().getAttribute(
+                SuiteAttribute.EXECUTE_HTTP_GET_URI.getName());
+        if ((null != excuteHttpGetUriObj)){        	
+            this.executeHttpGetUri = URI.class.cast(excuteHttpGetUriObj);
+            System.out.println(this.executeHttpGetUri.toString());        	
+        }
+        
         Object executeRequestFileRawDataOutputObj = testContext.getSuite().getAttribute(SuiteAttribute.EXECUTE_REQUEST_RAW_DATA_URI.getName());
         if((null != executeRequestFileRawDataOutputObj) && Document.class.isAssignableFrom(executeRequestFileRawDataOutputObj.getClass())) {
         	this.executeRequestFileRawDataOutputSubject = Document.class.cast(executeRequestFileRawDataOutputObj);
@@ -107,7 +116,8 @@ public class DataFixture {
         if((null != executeRequestFileUpdatingResponseDocumentOutputObj) && Document.class.isAssignableFrom(executeRequestFileUpdatingResponseDocumentOutputObj.getClass())) {
         	this.executeRequestFileUpdatingResponseDocumentOutputSubject = Document.class.cast(executeRequestFileUpdatingResponseDocumentOutputObj);
         }
-
+        
+        /* CLOSE */
     }
     /**
      * A configuration method ({@code BeforeClass}) that initializes the test

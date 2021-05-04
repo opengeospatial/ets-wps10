@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -184,8 +185,9 @@ public class DescribeProcessValidation extends DataFixture{
 	}
 	
 	public String sendGetRequest(String serviceURL, String param) throws IOException {
+		String dURL = URLDecoder.decode(serviceURL);
         StringBuilder response = new StringBuilder();
-        HttpURLConnection conn = GetConnection(serviceURL, param);
+        HttpURLConnection conn = GetConnection(dURL, param);
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-type", "text/xml");
         conn.setDoOutput(true);

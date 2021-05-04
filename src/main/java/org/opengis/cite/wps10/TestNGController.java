@@ -79,7 +79,7 @@ public class TestNGController implements TestSuiteController {
         System.out.println("Test results: " + testResults.getSystemId());
     }
 
-    /**
+    /** 
      * Default constructor uses the location given by the "java.io.tmpdir"
      * system property as the root output directory.
      */

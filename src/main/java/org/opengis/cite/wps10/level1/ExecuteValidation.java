@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 
 import org.opengis.cite.wps10.Namespaces;
 import org.opengis.cite.wps10.util.ValidationUtils;
@@ -83,7 +84,8 @@ public class ExecuteValidation extends DataFixture {
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(req, "GET");
 		if(isValid) {
-			StringBuilder xmlResponse = sendRequestByGET(serviceURL, "service=wps&request=Execute&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps");
+			String HttpGetServiceURL = executeHttpGetUri.toString();
+			StringBuilder xmlResponse = sendRequestByGET(HttpGetServiceURL, "");
 			String xsdPath = "xsd/opengis/wps/1.0/wpsExecute_response.xsd";
 			status 	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;
 			msg 	= "The server does not satisfies all requirements on the Execute operation response";
@@ -105,56 +107,8 @@ public class ExecuteValidation extends DataFixture {
 	 * 3. Check response code from POST request is 200 or not
 	 */
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.2. Accept Execute HTTP POST transferred Execute operation requests") 
-	public void HTTPPOSTTransferredExecuteValidation() throws IOException, URISyntaxException { 
-		String serviceURL = testSubjectUri.toString();
-		String parameters = "service=wps&request=GetCapabilities&version=1.0.0";
-		boolean status	  = false;
-		String msg 		  = null;
-		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
-		if(isValid) {
-			String xmlString  = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n" + 
-					"<wps:Execute service=\"WPS\" version=\"1.0.0\" xmlns:wps=\"http://www.opengis.net/wps/1.0.0\" xmlns:ows=\"http://www.opengis.net/ows/1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.opengis.net/wps/1.0.0\r\n" + 
-					"../wpsExecute_request.xsd\">\r\n" + 
-					"	<ows:Identifier>org.n52.wps.server.algorithm.test.LongRunningDummyTestClass</ows:Identifier>\r\n" + 
-					"	<wps:DataInputs>\r\n" + 
-					"		<wps:Input>\r\n" + 
-					"			<ows:Identifier>BBOXInputData</ows:Identifier>\r\n" + 
-					"            <wps:Data>\r\n" + 
-					"                <wps:BoundingBoxData crs=\"urn:ogc:def:crs:EPSG:6.6:4328\" dimensions=\"2\">\r\n" + 
-					"                    <ows:LowerCorner>12.513 41.87</ows:LowerCorner>\r\n" + 
-					"                    <ows:UpperCorner>14.996 43.333</ows:UpperCorner>\r\n" + 
-					"                </wps:BoundingBoxData>\r\n" + 
-					"            </wps:Data>\r\n" + 
-					"		</wps:Input>\r\n" + 
-					"	</wps:DataInputs>\r\n" + 
-					"	<wps:ResponseForm>\r\n" + 
-					"		<wps:ResponseDocument storeExecuteResponse=\"true\" lineage=\"true\" status=\"true\">\r\n" + 
-					"			<wps:Output asReference=\"true\">\r\n" + 
-					"				<ows:Identifier>BBOXOutputData</ows:Identifier>\r\n" + 
-					"				<ows:Title>BBOXOutputData</ows:Title>\r\n" + 
-					"				<ows:Abstract>BBOXOutputData</ows:Abstract>\r\n" + 
-					"			</wps:Output>\r\n" + 
-					"		</wps:ResponseDocument>\r\n" + 
-					"	</wps:ResponseForm>\r\n" + 
-					"</wps:Execute>";
-			String xsdReqPath = "xsd/opengis/wps/1.0/wpsExecute_request.xsd";
-			boolean isRequestValid = isXMLSchemaValid(xsdReqPath, xmlString.toString()) ? true : false;			
-			if(isRequestValid) {
-				StringBuilder xmlResponse = sendRequestByPOST(serviceURL, xmlString);
-				String xsdPath = "xsd/opengis/wps/1.0/wpsExecute_response.xsd";
-				status	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;;
-				msg 	= "The server does not satisfies all requirements on the Execute operation response";
-			}
-			else {
-				status	= isRequestValid;
-				msg 	= "The server does not respond to invalid request";
-			}
-		} 
-		else {
-			status	= isValid;
-			msg 	= "The server does not respond to HTTP POST request";
-		}
-		Assert.assertTrue(status, msg); 
+	public void HTTPPOSTTransferredExecuteValidation() throws IOException { 
+		PostRawDataOutputExecuteValidation();
 	}
 	
 	/**
@@ -168,7 +122,11 @@ public class ExecuteValidation extends DataFixture {
 	 * 4. Check response text from POST request is valid or not (How to check for all types of output?)
 	 */
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.3. Execute operation response: raw data output") 
-	public void RawDataOutputExecuteValidation() throws IOException, URISyntaxException { 
+	public void RawDataOutputExecuteValidation() throws IOException { 
+		PostRawDataOutputExecuteValidation();
+	}
+	
+	private void PostRawDataOutputExecuteValidation() throws IOException {
 		String serviceURL = testSubjectUri.toString();
 		String parameters = "service=wps&request=GetCapabilities&version=1.0.0";//&Identifier=" + identifier;
 		boolean status	  = false;
@@ -195,7 +153,7 @@ public class ExecuteValidation extends DataFixture {
 			status	= isValid;
 			msg 	= "The server does not respond to HTTP POST request";
 		}
-		Assert.assertTrue(status, msg); 
+		Assert.assertTrue(status, msg);
 	}
 	
 	/**
@@ -303,16 +261,18 @@ public class ExecuteValidation extends DataFixture {
 	@Test(enabled=true, groups = "A.4.4. Execute operation test module", description = "A.4.4.6. Language selection") 
 	public void LanguageSelectionExecuteValidation() throws IOException, URISyntaxException { 
 //		String serviceURL = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
-		String serviceURL = testSubjectUri.toString();
-		String parameters = "service=wps&request=GetCapabilities&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps";
-		String req 		  = serviceURL + "?" + parameters;
+//		String serviceURL = testSubjectUri.toString();
+		String HttpGetServiceURL = executeHttpGetUri.toString();
+		String serviceURL  = URLDecoder.decode(HttpGetServiceURL);
+//		String parameters = "service=wps&request=GetCapabilities&version=1.0.0&Identifier=org.n52.wps.server.r.test.geo&DataInputs=filename=fcu_ogc_wps";
+		String req 		  = serviceURL; // + "?" + parameters;
 		boolean status	  = false;
 		String msg 		  = null;
 		boolean isValid   = isHTTPValid(req, "GET");
-		if(isValid) {
+		if(isValid) {			
 			boolean isLanguageValid   = isHTTPValid(req + "&Language=en-US", "GET");
 			if(isLanguageValid) {
-				StringBuilder xmlResponse = sendRequestByGET(serviceURL, parameters);
+				StringBuilder xmlResponse = sendRequestByGET(serviceURL, "");
 				String xsdPath = "xsd/opengis/wps/1.0/wpsExecute_response.xsd";
 				status 	= isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;
 				msg 	= "The server does not satisfies all requirements on the Execute operation response";
@@ -329,41 +289,6 @@ public class ExecuteValidation extends DataFixture {
 		Assert.assertTrue(status, msg); 
 	}
 	
-	/**
-	 * A.4.1.2 HTTP Response Status Code
-	 * @throws IOException 
-	 * @throws URISyntaxException 
-	 * 1. Check response code is 4xx, 5xx or not 
-	 * 2. Check response text from request is exception or not 
-	 * 3. Return exceptionCode value
-	 */
-	@Test(enabled=true, groups = "A.4.1. All operations implemented test module", description = "A.4.1.2. HTTP response status code") 
-	public void HTTPResponseStatusCode() throws IOException, URISyntaxException { 
-//		String serviceURL = "https://demo.geo-solutions.it/geoserver/ows";
-		String serviceURL = testSubjectUri.toString();
-		String parameters = "service=wps&version=1.0.0&request=DescribeProcess&identifier=JTS:Invalid";
-		boolean status	  = false;
-		String msg 		  = null;
-		boolean isValid   = isHTTPValid(serviceURL + "?" + parameters, "GET");
-		if(isValid) {
-			StringBuilder xmlResponse = sendRequestByGET(serviceURL, parameters);
-			Document exceptionDoc = convertStringToXMLDocument(xmlResponse.toString());
-			String exceptionCode  = exceptionDoc.getElementsByTagName("ows:Exception").item(0).getAttributes().getNamedItem("exceptionCode").getNodeValue();
-			if(exceptionCode != null) {
-				status	= true;	
-				msg 	= "The server return an exception code " + exceptionCode;
-			} else {
-				status 	= false;
-				msg 	= "The server does not return an exception code";
-			}	
-		} 
-		else {
-			status	= true;
-			msg 	= "The server does not respond to HTTP GET request";
-		}
-		Assert.assertTrue(status, msg); 		
-	}
-	
 	/*
 	 * private Map<String, String> KVPfromURL(String URL) throws
 	 * UnsupportedEncodingException { int i = URL.indexOf("?"); Map<String, String>
@@ -376,9 +301,10 @@ public class ExecuteValidation extends DataFixture {
 	 */
 	
 	private static StringBuilder sendRequestByGET(String requestURL, String parameters) throws IOException {
-		URL obj = new URL(requestURL + "?" + parameters);	
+		String dURL = URLDecoder.decode(requestURL);
+		URL obj = new URL(dURL + "?" + parameters);	
 		if(parameters == "" || parameters == null) {
-			obj = new URL(requestURL);
+			obj = new URL(dURL);
 		} 
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		con.setRequestMethod("GET");

@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 
 import org.opengis.cite.wps10.Namespaces;
 import org.opengis.cite.wps10.util.ValidationUtils;
@@ -394,8 +395,9 @@ public class GetCapabilitiesValidation extends DataFixture {
 	}
 	
 	public String sendGetRequest(String serviceURL, String param) throws IOException {
+		String dURL = URLDecoder.decode(serviceURL);
         StringBuilder response = new StringBuilder();
-        HttpURLConnection conn = GetConnection(serviceURL, param);
+        HttpURLConnection conn = GetConnection(dURL, param);
  
         // Read all the text returned by the server
      	BufferedReader in;

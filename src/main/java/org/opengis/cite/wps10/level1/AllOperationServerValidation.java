@@ -75,7 +75,7 @@ public class AllOperationServerValidation extends DataFixture {
 	 * A.4.1.2 GetCapabilities HTTP response status code
 	 */
 	@Test(enabled = true, groups = "A.4.1. All operations implemented test module", description = "Verify that a service request which generates an exception produces response that contains 1) a service exception report, and 2) a status code indicating an error.")
-	public void GetCapabilitiesHttpResponseStatusCodeValidation() throws IOException, URISyntaxException {
+	public void GetCapabilitiesHttpResponseStatusCodeValidation() throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
 		String serviceURL 	= testSubjectUri.toString();
 		String param = "?service=wps&version=1.0.0&request=GetCapabilities";
 		HttpURLConnection connection = GetConnection(serviceURL, param);
@@ -89,7 +89,8 @@ public class AllOperationServerValidation extends DataFixture {
 		boolean resCodeResult = (firstDigit == 4 || firstDigit == 5 ? true: false);
 		
 		// Check if body message contain service exception report
-		boolean resBodyMesResult = true;
+		String responseWrong = "";
+//		boolean resBodyMesResult = true;
 		if(responseCode > 299) {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
 			String inputLine;
@@ -98,11 +99,24 @@ public class AllOperationServerValidation extends DataFixture {
 				response.append(inputLine);
 			}
 			inputReader.close();
-			resBodyMesResult = (response != null ? true : false);
+			//resBodyMesResult = (response != null ? true : false);
+			responseWrong = response.toString();
 		}
 
-		boolean result = (resCodeResult == true && resBodyMesResult == true ? true : false);
+		boolean result = (resCodeResult == true ? true : false);
 		Assert.assertTrue(result, "the response code from server is not either 4xx (Client error) or 5xx (Server error)");
+
+		//Read xml string using Xpath2
+		InputSource sourceWR = new InputSource(new StringReader(responseWrong));
+		DocumentBuilderFactory dbfWR = DocumentBuilderFactory.newInstance();
+		javax.xml.parsers.DocumentBuilder dbWR = dbfWR.newDocumentBuilder();
+		Document documentWR = dbWR.parse(sourceWR);
+		String candidateNodeWR = CheckXPath2("//ows:ExceptionReport", documentWR);
+		
+		boolean wrongResultRequest = (candidateNodeWR.contains("XdmEmptySequence") ? false : true);
+		
+		boolean finalResult = (wrongResultRequest == true ? true : false);
+		Assert.assertTrue(finalResult, "The response body from server does not contain a service exception report.");
 	}
 	
 	/**
@@ -195,38 +209,57 @@ public class AllOperationServerValidation extends DataFixture {
 	 }
 	
 	/**
-	 * A.4.1.2 Execute HTTP response status code
-	 * Description: 
-	 * 1. Check server offline or not 
-	 * 2. Check XML content is valid or not follow 10.2.3
-	 * 3. Check response code from POST request is 200 or not
+	 * A.4.1.2 Execute HTTP Response Status Code
+	 * @throws IOException 
+	 * @throws URISyntaxException 
+	 * 1. Check response code is 4xx, 5xx or not 
+	 * 2. Check response text from request is exception or not 
+	 * 3. Return exceptionCode value
 	 */
-	/*
-	 * @Test(enabled=true, groups = "A.4.1. All operations implemented test module",
-	 * description =
-	 * "A.4.4.2. Accept Execute HTTP POST transferred Execute operation requests")
-	 * public void ExecuteHttpResponseStatusCodeValidation() throws IOException,
-	 * URISyntaxException { String serviceURL = testSubjectUri.toString(); String
-	 * parameters =
-	 * "service=wps&request=GetCapabilities&version=1.0.0";//&Identifier=" +
-	 * identifier; boolean status = false; String msg = null; boolean isValid =
-	 * isHTTPValid(serviceURL + "?" + parameters, "GET"); if(isValid) { String
-	 * xmlString =
-	 * getStringFromXML(executeRequestFileResponseDocumentOutputSubject); String
-	 * xsdReqPath =
-	 * "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_request.xsd";
-	 * boolean isRequestValid = isXMLSchemaValid(xsdReqPath, xmlString.toString()) ?
-	 * true : false; if(isRequestValid) { StringBuilder xmlResponse =
-	 * sendRequestByPOST(serviceURL, xmlString); String xsdPath =
-	 * "src/main/resources/org/opengis/cite/wps10/xsd/opengis/wps/1.0/wpsExecute_response.xsd";
-	 * status = isXMLSchemaValid(xsdPath, xmlResponse.toString()) ? true : false;
-	 * msg =
-	 * "The server does not satisfies all requirements on the Execute operation response"
-	 * ; } else { status = isRequestValid; msg =
-	 * "The server does not respond to invalid request"; } } else { status =
-	 * isValid; msg = "The server does not respond to HTTP POST request"; }
-	 * Assert.assertTrue(status, msg); }
-	 */
+	@Test(enabled=true, groups = "A.4.1. All operations implemented test module", description = "Verify that a service request which generates an exception produces response that contains 1) a service exception report, and 2) a status code indicating an error.") 
+	public void ExecuteHttpResponseStatusCodeValidation() throws IOException, URISyntaxException, ParserConfigurationException, SAXException  { 
+		String serviceURL 	= testSubjectUri.toString();
+		String param = "?service=wps&version=1.0.0&request=DescribeProcess&identifier=JTS:Invalid";
+		HttpURLConnection connection = GetConnection(serviceURL, param);
+		
+		connection.setRequestMethod("POST");
+		
+		Integer responseCode = connection.getResponseCode();
+		
+		// Check if response code is 4xx or 5xx
+		int firstDigit = Integer.parseInt(Integer.toString(responseCode).substring(0, 1));
+		boolean resCodeResult = (firstDigit == 4 || firstDigit == 5 ? true: false);
+		
+		// Check if body message contain service exception report
+		String responseWrong = "";
+//		boolean resBodyMesResult = true;
+		if(responseCode > 299) {
+			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+			while ((inputLine = inputReader.readLine())!= null){
+				response.append(inputLine);
+			}
+			inputReader.close();
+			//resBodyMesResult = (response != null ? true : false);
+			responseWrong = response.toString();
+		}
+
+		boolean result = (resCodeResult == true ? true : false);
+		Assert.assertTrue(result, "the response code from server is not either 4xx (Client error) or 5xx (Server error)");
+
+		//Read xml string using Xpath2
+		InputSource sourceWR = new InputSource(new StringReader(responseWrong));
+		DocumentBuilderFactory dbfWR = DocumentBuilderFactory.newInstance();
+		javax.xml.parsers.DocumentBuilder dbWR = dbfWR.newDocumentBuilder();
+		Document documentWR = dbWR.parse(sourceWR);
+		String candidateNodeWR = CheckXPath2("//ows:ExceptionReport", documentWR);
+		
+		boolean wrongResultRequest = (candidateNodeWR.contains("XdmEmptySequence") ? false : true);
+		
+		boolean finalResult = (wrongResultRequest == true ? true : false);
+		Assert.assertTrue(finalResult, "The response body from server does not contain a service exception report.");
+	}
 	
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

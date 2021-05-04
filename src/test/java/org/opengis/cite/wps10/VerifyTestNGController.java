@@ -59,6 +59,7 @@ public class VerifyTestNGController {
     	URL updateResponseSubject = getClass().getResource("/wps_execute_request_updating_response_document.xml");
     	
         this.testRunProps.setProperty(TestRunArg.IUT.toString(), "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService");
+        this.testRunProps.setProperty(TestRunArg.EXECUTE_HTTP_GET_URI.toString(), "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService?service=WPS%26request=GetCapabilities%26version=1.0.0%26Identifier=org.n52.wps.server.r.test.geo%26DataInputs=filename=fcu_ogc_wps");
         this.testRunProps.setProperty(TestRunArg.EXECUTE_REQUEST_RAW_DATA_URI.toString(), rawSubject.toURI().toString());
         this.testRunProps.setProperty(TestRunArg.EXECUTE_REQUEST_RESPONSE_DOCUMENT_URI.toString(), responseSubject.toURI().toString());
         this.testRunProps.setProperty(TestRunArg.EXECUTE_REQUEST_UPDATING_RESPONSE_DOCUMENT_URI.toString(), updateResponseSubject.toURI().toString());

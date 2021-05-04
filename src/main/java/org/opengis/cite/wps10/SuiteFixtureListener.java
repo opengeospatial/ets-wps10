@@ -109,6 +109,37 @@ public class SuiteFixtureListener implements ISuiteListener {
             TestSuiteLogger.log(Level.FINE, logMsg.toString());
         }
         
+        /* START OF HTTP GET URI */
+        String httpGetUriParam = params.get(TestRunArg.EXECUTE_HTTP_GET_URI.toString());
+//        Set<URI> httpGetSchemaURIs = new HashSet<URI>();
+        if ((null == httpGetUriParam) || httpGetUriParam.isEmpty()) {
+            throw new IllegalArgumentException("Required test run parameter not found: " + TestRunArg.EXECUTE_HTTP_GET_URI.toString());
+        }
+//        URI httpGetUriRef = URI.create(httpGetUriParam.trim());
+        String httpGetUriRefString = params.get(TestRunArg.EXECUTE_HTTP_GET_URI.toString());      
+		
+		/*
+		 * File HttpGetUriEntityFile = null; try { HttpGetUriEntityFile =
+		 * URIUtils.dereferenceURI(httpGetUriRef); if
+		 * (XMLUtils.isXMLSchema(HttpGetUriEntityFile)) {
+		 * params.put(TestRunArg.XSD.toString(), httpGetUriRefString); } else {
+		 * params.put(TestRunArg.XML.toString(), httpGetUriRefString); }
+		 * httpGetSchemaURIs.addAll(ValidationUtils.extractSchemaReferences(new
+		 * StreamSource(HttpGetUriEntityFile), httpGetUriRefString)); } catch (Exception
+		 * iox) { //throw new
+		 * RuntimeException("Failed to dereference resource located at " + iutRef, iox);
+		 * }
+		 */
+        
+        suite.setAttribute(SuiteAttribute.EXECUTE_HTTP_GET_URI.getName(), URI.create(httpGetUriRefString));
+        if (TestSuiteLogger.isLoggable(Level.FINE)) {
+            StringBuilder logMsg = new StringBuilder("Parsed resource retrieved from ");
+            logMsg.append(iutRef).append("\n");
+            logMsg.append(XMLUtils.writeNodeToString(iutDoc));
+            TestSuiteLogger.log(Level.FINE, logMsg.toString());
+        }
+        /* CLOSE */
+        
 		/* 
 		 * Assign execute request uri to the testsuite attribute
 		*/
