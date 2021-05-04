@@ -99,8 +99,7 @@ public class ExecuteValidation extends DataFixture {
 	
 	/**
 	 * A.4.4.2 HTTP protocol POST usage
-	 * @throws IOException 
-	 * @throws URISyntaxException 
+	 * @throws IOException
 	 * Description: 
 	 * 1. Check server offline or not 
 	 * 2. Check XML content is valid or not follow 10.2.3
@@ -113,8 +112,7 @@ public class ExecuteValidation extends DataFixture {
 	
 	/**
 	 * A.4.4.3 Raw Data Output
-	 * @throws IOException 
-	 * @throws URISyntaxException 
+	 * @throws IOException
 	 * Description: 
 	 * 1. Check server offline or not 
 	 * 2. Check XML content is valid or not follow 10.2.3

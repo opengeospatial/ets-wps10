@@ -210,8 +210,6 @@ public class AllOperationServerValidation extends DataFixture {
 	
 	/**
 	 * A.4.1.2 Execute HTTP Response Status Code
-	 * @throws IOException 
-	 * @throws URISyntaxException 
 	 * 1. Check response code is 4xx, 5xx or not 
 	 * 2. Check response text from request is exception or not 
 	 * 3. Return exceptionCode value
