@@ -1,7 +1,16 @@
 package org.opengis.cite.wps10;
 
-import static org.junit.Assert.*;
+import net.sf.saxon.s9api.XdmValue;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.opengis.cite.wps10.util.XMLUtils;
+import org.w3c.dom.Document;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,18 +18,7 @@ import java.net.URL;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-
-import net.sf.saxon.s9api.XdmValue;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.opengis.cite.wps10.util.XMLUtils;
-import org.w3c.dom.Document;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Verifies the results of executing a test run using the main controller

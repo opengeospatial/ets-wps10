@@ -1,25 +1,18 @@
 package org.opengis.cite.wps10.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.util.logging.Level;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import org.opengis.cite.wps10.util.TestSuiteLogger;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
+import java.io.*;
+import java.net.URI;
+import java.util.logging.Level;
 
 /**
  * Provides a collection of utility methods for manipulating or resolving URI

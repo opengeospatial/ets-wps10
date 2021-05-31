@@ -1,9 +1,15 @@
 package org.opengis.cite.wps10;
 
-import java.net.URL;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.sun.jersey.api.client.ClientResponse;
+import org.opengis.cite.validation.SchematronValidator;
+import org.opengis.cite.validation.ValidationErrorHandler;
+import org.opengis.cite.wps10.util.NamespaceBindings;
+import org.opengis.cite.wps10.util.XMLUtils;
+import org.testng.Assert;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
@@ -14,18 +20,10 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.opengis.cite.wps10.util.NamespaceBindings;
-import org.opengis.cite.wps10.util.XMLUtils;
-import org.opengis.cite.validation.SchematronValidator;
-import org.opengis.cite.validation.ValidationErrorHandler;
-import org.testng.Assert;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.sun.jersey.api.client.ClientResponse;
+import java.net.URL;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides a set of custom assertion methods.

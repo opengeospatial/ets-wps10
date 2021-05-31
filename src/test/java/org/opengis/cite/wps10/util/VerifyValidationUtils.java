@@ -1,17 +1,17 @@
 package org.opengis.cite.wps10.util;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.opengis.cite.validation.SchematronValidator;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.Set;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.stream.StreamSource;
-
-import org.junit.Test;
-import org.opengis.cite.validation.SchematronValidator;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Verifies the behavior of the ValidationUtils class.

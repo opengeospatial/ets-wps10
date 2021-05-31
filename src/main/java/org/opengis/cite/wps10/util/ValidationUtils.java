@@ -1,13 +1,11 @@
 package org.opengis.cite.wps10.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Level;
+import org.apache.xerces.util.XMLCatalogResolver;
+import org.opengis.cite.validation.SchematronValidator;
+import org.opengis.cite.validation.XmlSchemaCompiler;
+import org.opengis.cite.wps10.Namespaces;
+import org.w3c.dom.ls.LSResourceResolver;
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -19,13 +17,14 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
-
-import org.apache.xerces.util.XMLCatalogResolver;
-import org.opengis.cite.wps10.Namespaces;
-import org.opengis.cite.validation.SchematronValidator;
-import org.opengis.cite.validation.XmlSchemaCompiler;
-import org.w3c.dom.ls.LSResourceResolver;
-import org.xml.sax.SAXException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * A utility class that provides convenience methods to support schema
