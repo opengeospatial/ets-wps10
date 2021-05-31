@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20210531" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>wps10 Conformance Test Suite &#x2013; Project Licenses</title>
+    <title>wps10 Conformance Test Suite &#x2013; </title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.5.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -76,27 +76,13 @@
         Release Notes</a>
             </li>
                               <li class="nav-header">Project Documentation</li>
-                                                                                                            
+                                                                                                  
       <li>
   
                           <a href="project-info.html" title="Project Information">
-          <span class="icon-chevron-down"></span>
+          <span class="icon-chevron-right"></span>
         Project Information</a>
-                    <ul class="nav nav-list">
-                    
-      <li class="active">
-  
-            <a href="#"><span class="none"></span>Licenses</a>
-          </li>
-                    
-      <li>
-  
-                          <a href="issue-tracking.html" title="Issue Management">
-          <span class="none"></span>
-        Issue Management</a>
-            </li>
-              </ul>
-        </li>
+                  </li>
                                                                   
       <li>
   
@@ -124,17 +110,75 @@
                 
         <div id="bodyColumn"  class="span10" >
                                   
-            <div class="section">
-<h2><a name="Overview"></a>Overview</h2><a name="Overview"></a>
-<p>Typically the licenses listed for the project are that of the project itself, and not of dependencies.</p></div>
-<div class="section">
-<h2><a name="Project_Licenses"></a>Project Licenses</h2><a name="Project_Licenses"></a>
-<div class="section">
-<h3><a name="Apache_License_Version_2.0"></a>Apache License, Version 2.0</h3><a name="Apache_License_Version_2.0"></a><a class="externalLink" href="http://opensource.org/licenses/Apache-2.0">[Original text]</a>
-<p>Copy of the license follows:</p>
-<center><h1>301 Moved Permanently</h1></center>
-<hr><center>nginx/1.14.0 (Ubuntu)</center>
-</div></div>
+            <div class="sect1">
+<h2 id="how_to_run_the_tests">How to run the tests</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The options for running the test suite are summarized below.</p>
+</div>
+<div class="paragraph">
+<p>As entry point the Landing Page of the wps10 is expected.</p>
+</div>
+<div class="sect2">
+<h3 id="1_integrated_development_environment_ide">1. Integrated development environment (IDE)</h3>
+<div class="paragraph">
+<p>Use a Java IDE such as Eclipse, NetBeans, or IntelliJ. Clone the repository and build the project.</p>
+</div>
+<div class="paragraph">
+<p>Set the main class to run: <code>org.opengis.cite.wps10.TestNGController</code></p>
+</div>
+<div class="paragraph">
+<p>Arguments: The first argument must refer to an XML properties file containing the
+required test run arguments. If not specified, the default location at <code>$
+{user.home}/test-run-props.xml</code> will be used.</p>
+</div>
+<div class="paragraph">
+<p>You can modify the sample file in <code>src/main/config/test-run-props.xml</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd"&gt;
+&lt;properties version="1.0"&gt;
+  &lt;comment&gt;Test run arguments&lt;/comment&gt;
+  &lt;entry key="iut"&gt;https://host/capabilities&lt;/entry&gt;
+&lt;/properties&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The TestNG results file (<code>testng-results.xml</code>) will be written to a subdirectory
+in <code>${user.home}/testng/</code> having a UUID value as its name.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="2_command_shell_console">2. Command shell (console)</h3>
+<div class="paragraph">
+<p>One of the build artifacts is an "all-in-one" JAR file that includes the test
+suite and all of its dependencies; this makes it very easy to execute the test
+suite in a command shell:</p>
+</div>
+<div class="paragraph">
+<p><code>java -jar ets-wps10-0.1-SNAPSHOT-aio.jar [-o|--outputDir $TMPDIR] [test-run-props.xml]</code></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="3_docker">3. Docker</h3>
+<div class="paragraph">
+<p>This test suite comes with a Dockerfile which can be used to easily setup the OGC test harness with
+the test suite. Details can be found on <a href="https://github.com/opengeospatial/cite/wiki/How-to-create-Docker-Images-of-test-suites#create-docker-image-and-create-and-start-docker-container">Create Docker Image and create and start Docker Container</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="4_ogc_test_harness">4. OGC test harness</h3>
+<div class="paragraph">
+<p>Use <a href="https://github.com/opengeospatial/teamengine">TEAM Engine</a>, the official OGC test harness.
+The latest test suite release are usually available at the <a href="http://cite.opengeospatial.org/te2/">beta testing facility</a>.
+You can also <a href="https://github.com/opengeospatial/teamengine">build and deploy</a> the test
+harness yourself and use a local installation.</p>
+</div>
+</div>
+</div>
+</div>
                   </div>
             </div>
           </div>
