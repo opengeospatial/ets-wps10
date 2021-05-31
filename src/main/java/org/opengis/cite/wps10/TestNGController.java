@@ -1,5 +1,16 @@
 package org.opengis.cite.wps10;
 
+import com.occamlab.te.spi.executors.TestRunExecutor;
+import com.occamlab.te.spi.executors.testng.TestNGExecutor;
+import com.occamlab.te.spi.jaxrs.TestSuiteController;
+import org.opengis.cite.wps10.util.TestSuiteLogger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,21 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Source;
-
-import org.opengis.cite.wps10.util.TestSuiteLogger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-//import com.beust.jcommander.JCommander;
-//import com.beust.jcommander.ParameterException;
-import com.occamlab.te.spi.executors.TestRunExecutor;
-import com.occamlab.te.spi.executors.testng.TestNGExecutor;
-import com.occamlab.te.spi.jaxrs.TestSuiteController;
 
 /**
  * Main test run controller oversees execution of TestNG test suites.

@@ -1,17 +1,16 @@
 package org.opengis.cite.wps10;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
+import net.sf.saxon.s9api.*;
+import org.apache.xerces.xs.XSModel;
+import org.opengis.cite.validation.XmlSchemaCompiler;
+import org.opengis.cite.wps10.util.NamespaceBindings;
+import org.opengis.cite.wps10.util.ValidationUtils;
+import org.opengis.cite.wps10.util.XMLUtils;
+import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.annotations.BeforeClass;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -19,25 +18,14 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.Validator;
-
-import org.apache.xerces.xs.XSModel;
-import org.opengis.cite.wps10.util.NamespaceBindings;
-import org.opengis.cite.wps10.util.ValidationUtils;
-import org.opengis.cite.wps10.util.XMLUtils;
-import org.opengis.cite.validation.XmlSchemaCompiler;
-import org.testng.Assert;
-import org.testng.ITestContext;
-import org.testng.annotations.BeforeClass;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import net.sf.saxon.s9api.DocumentBuilder;
-import net.sf.saxon.s9api.Processor;
-import net.sf.saxon.s9api.SaxonApiException;
-import net.sf.saxon.s9api.XPathCompiler;
-import net.sf.saxon.s9api.XPathSelector;
-import net.sf.saxon.s9api.XdmNode;
-import net.sf.saxon.s9api.XdmValue;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
 
 /**
  * A supporting base class that provides a common fixture for validating data

@@ -1,13 +1,12 @@
 package org.opengis.cite.wps10;
 
 import com.sun.jersey.api.client.Client;
+import org.apache.xerces.xs.XSModel;
+import org.w3c.dom.Document;
 
 import java.io.File;
 import java.net.URI;
 import java.util.Set;
-
-import org.apache.xerces.xs.XSModel;
-import org.w3c.dom.Document;
 
 /**
  * An enumerated type defining ISuite attributes that may be set to constitute a

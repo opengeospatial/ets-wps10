@@ -3,23 +3,16 @@ package org.opengis.cite.wps10;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
-
-import net.sf.saxon.s9api.SaxonApiException;
-import net.sf.saxon.s9api.XdmValue;
-
-import java.net.URI;
-import java.util.Map;
-import javax.ws.rs.core.MediaType;
-import javax.xml.transform.dom.DOMSource;
-
 import org.opengis.cite.wps10.util.ClientUtils;
-import org.opengis.cite.wps10.util.NamespaceBindings;
-import org.opengis.cite.wps10.util.XMLUtils;
 import org.testng.ITestContext;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.w3c.dom.Document;
+
+import javax.ws.rs.core.MediaType;
+import java.net.URI;
+import java.util.Map;
 
 /**
  * A supporting base class that sets up a common test fixture. These
