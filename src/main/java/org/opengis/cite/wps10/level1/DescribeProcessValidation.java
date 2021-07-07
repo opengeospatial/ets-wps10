@@ -6,6 +6,8 @@ import org.opengis.cite.wps10.Namespaces;
 import org.opengis.cite.wps10.util.ValidationUtils;
 import org.opengis.cite.wps10.util.XMLUtils;
 import org.testng.Assert;
+import org.testng.SkipException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -34,6 +36,31 @@ public class DescribeProcessValidation extends DataFixture{
 //	String serviceURL 	= this.testSubjectUri.toString();
 //	String service_url1 = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
 //	String service_url2 = "http://93.187.166.52:8081/geoserver/ows";
+	String processId = "";
+	
+	@BeforeClass
+	public void beforeClass() throws IOException, ParserConfigurationException, SAXException, SaxonApiException {
+		String serviceURL 	= testSubjectUri.toString();
+		
+		String response = sendGetRequest(serviceURL, "?service=wps&request=GetCapabilities&language=en-US");
+		// Read xml string using Xpath2
+		InputSource sourceWR = new InputSource(new StringReader(response));
+		DocumentBuilderFactory dbfWR = DocumentBuilderFactory.newInstance();
+		javax.xml.parsers.DocumentBuilder dbWR = dbfWR.newDocumentBuilder();
+		Document documentWR = dbWR.parse(sourceWR);	
+		XdmValue xdmValue = XMLUtils.evaluateXPath2(new DOMSource(documentWR), "//ows:Identifier", getStandardBindings());
+		if(xdmValue.size() != 0) {
+			processId = xdmValue.itemAt(0).getStringValue();	
+		}
+		
+		CheckServiceHasProcess();
+	}
+	
+	private void CheckServiceHasProcess() {
+		if(processId.isEmpty()) {
+			throw new SkipException("Skip the DescribeProcess validation test due to no process offering.");
+		}
+	}
 	
 	/**
 	 * A.4.3.1 Accept DescribeProcess HTTP GET transferred operation requests
@@ -43,7 +70,7 @@ public class DescribeProcessValidation extends DataFixture{
 	@Test(groups = "A.4.3. DescribeProcess operation test module", description = "Verify that a server accepts at least HTTP GET transferred requests for the DescribeProcess operation")
 	public void HTTPGETTransferredKVPDescribeProcessValidation() throws IOException, URISyntaxException {
 		String serviceURL 	= testSubjectUri.toString();
-		String param = "?service=wps&version=1.0.0&request=DescribeProcess&Identifier=ALL";
+		String param = "?service=wps&version=1.0.0&request=DescribeProcess&Identifier=" + processId;
 		HttpURLConnection connection = GetConnection(serviceURL, param);
 	 
 		connection.setRequestMethod("GET");
@@ -61,18 +88,20 @@ public class DescribeProcessValidation extends DataFixture{
 	 * @throws URISyntaxException 
 	 * @throws ParserConfigurationException 
 	 * @throws SAXException 
+	 * @throws SaxonApiException 
 	 */
 	@Test(groups = "A.4.3. DescribeProcess operation test module", description = "Verify that a server accepts at HTTP POST transferred requests for the DescribeProcess operation")
-	public void HTTPPOSTTransferredXMLDescribeProcessValidation() throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
+	public void HTTPPOSTTransferredXMLDescribeProcessValidation() throws IOException, URISyntaxException, ParserConfigurationException, SAXException, SaxonApiException {
 		////Check correct POST operation request
 		String serviceURL 	= testSubjectUri.toString();
+		
 		String msgCorrect = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 				+ "<wps:DescribeProcess service=\"WPS\" version=\"1.0.0\" "
 				+ "xmlns:wps=\"http://www.opengis.net/wps/1.0.0\" "
 				+ "xmlns:ows=\"http://www.opengis.net/ows/1.1\" "
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
 				+ "xsi:schemaLocation=\"http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsDescribeProcess_request.xsd\">"
-				+ "<ows:Identifier>ALL</ows:Identifier>"
+				+ "<ows:Identifier>" + processId + "</ows:Identifier>"
 				+ "</wps:DescribeProcess>";
 		String responseCorrect = postMessage(msgCorrect, serviceURL);
 		
@@ -96,7 +125,7 @@ public class DescribeProcessValidation extends DataFixture{
 	public void DescribeProcessResponseValidation() throws IOException, SAXException {
 		//Set KVP request
 		String serviceURL 	= testSubjectUri.toString();
-		String param = "?service=wps&version=1.0.0&request=DescribeProcess&Identifier=ALL";
+		String param = "?service=wps&version=1.0.0&request=DescribeProcess&Identifier" + processId;
 		String response = sendGetRequest(serviceURL, param);
 		
 		//Check response with xsd file
@@ -144,7 +173,7 @@ public class DescribeProcessValidation extends DataFixture{
 		
 		//send request using each support language
 		for (String language : supportLanguageList) {
-			String languageSelectionResponse = sendGetRequest(serviceURL,"?service=wps&request=DescribeProcess&Version=1.0.0&identifier=ALL&language=" + language);
+			String languageSelectionResponse = sendGetRequest(serviceURL,"?service=wps&request=DescribeProcess&Version=1.0.0&identifier=" + processId + "&language=" + language);
 			
 			// Read xml string using Xpath2
 	    	InputSource source = new InputSource(new StringReader(languageSelectionResponse));
