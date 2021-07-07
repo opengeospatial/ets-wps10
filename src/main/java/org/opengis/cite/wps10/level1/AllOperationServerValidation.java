@@ -3,7 +3,10 @@ package org.opengis.cite.wps10.level1;
 import net.sf.saxon.s9api.*;
 import org.opengis.cite.wps10.DataFixture;
 import org.opengis.cite.wps10.Namespaces;
+import org.opengis.cite.wps10.util.XMLUtils;
 import org.testng.Assert;
+import org.testng.SkipException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -33,7 +36,31 @@ import java.util.Map;
 public class AllOperationServerValidation extends DataFixture {
 //	String service_url1 = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
 //	String service_url2 = "http://93.187.166.52:8081/geoserver/ows";
-
+	String processId = "";
+	
+	@BeforeClass
+	public void beforeClass() throws IOException, ParserConfigurationException, SAXException, SaxonApiException {
+		String serviceURL 	= testSubjectUri.toString();
+		
+		String response = sendGetRequest(serviceURL, "?service=wps&request=GetCapabilities&language=en-US");
+		// Read xml string using Xpath2
+		InputSource sourceWR = new InputSource(new StringReader(response));
+		DocumentBuilderFactory dbfWR = DocumentBuilderFactory.newInstance();
+		javax.xml.parsers.DocumentBuilder dbWR = dbfWR.newDocumentBuilder();
+		Document documentWR = dbWR.parse(sourceWR);	
+		XdmValue xdmValue = XMLUtils.evaluateXPath2(new DOMSource(documentWR), "//ows:Identifier", getStandardBindings());
+		if(xdmValue.size() != 0) {
+			processId = xdmValue.itemAt(0).getStringValue();	
+		}
+		
+		CheckServiceHasProcess();
+	}
+	
+	private void CheckServiceHasProcess() {
+		if(processId.isEmpty()) {
+			throw new SkipException("Skip the DescribeProcess validation test due to no process offering.");
+		}
+	}
 	
 	/**
 	 * A.4.1.1 GetCapabilities HTTP protocol usage
@@ -108,7 +135,7 @@ public class AllOperationServerValidation extends DataFixture {
 	@Test(enabled = true, groups = "A.4.1. All operations implemented test module", description = "Verify that the rules and conventions governing the use of HTTP are observed") 
 	public void DescribeProcessHttpProtocolUsageValidation() throws IOException,URISyntaxException { 
 		String serviceURL 	= testSubjectUri.toString();
-		String param = "?service=wps&request=DescribeProcess&Version=1.0.0&identifier=ALL";
+		String param = "?service=wps&request=DescribeProcess&Version=1.0.0&identifier=" + processId;
 		HttpURLConnection connection = GetConnection(serviceURL, param);
 	 
 		connection.setRequestMethod("GET");
