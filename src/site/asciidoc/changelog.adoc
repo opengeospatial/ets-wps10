@@ -1,5 +1,9 @@
 =  WPS 1.0.0 Test Suite Release Notes
 
+== 0.8 (2021-07-30)
+
+- https://github.com/opengeospatial/ets-wps10/issues/20[#20] - ETS throws an Out of memory error due to the DescribeProcess (ALL) response being too large
+
 == 0.7 (2021-04-07)
 
 - https://github.com/opengeospatial/ets-wps10/issues/18[#18] - Create one unit test
