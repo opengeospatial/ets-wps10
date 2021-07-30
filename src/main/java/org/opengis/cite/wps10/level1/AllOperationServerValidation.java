@@ -198,11 +198,11 @@ public class AllOperationServerValidation extends DataFixture {
 		boolean finalResult = (wrongResultRequest == true ? true : false);
 		Assert.assertTrue(finalResult, "The response body from server does not contain a service exception report.");
 	}
-	
+
 	/**
 	 * A.4.1.1 Execute HTTP protocol usage
 	 */
-	@Test(enabled = true, groups = "A.4.1. All operations implemented test module", description = "Verify that the rules and conventions governing the use of HTTP are observed") 
+/*	@Test(enabled = true, groups = "A.4.1. All operations implemented test module", description = "Verify that the rules and conventions governing the use of HTTP are observed")
 	public void ExecuteHttpProtocolUsageValidation() throws IOException,URISyntaxException { 
 		String serviceURL 	= testSubjectUri.toString();
 		String param = "?service=wps&version=1.0.0&request=Execute&identifier=org.n52.wps.server.r.demo.uniform.table&DataInputs=min=0;max=10;n=5;";
@@ -214,8 +214,8 @@ public class AllOperationServerValidation extends DataFixture {
 	  
 		boolean result = (responseCode == HttpURLConnection.HTTP_OK );
 		Assert.assertTrue(result, "The server does not respond to HTTP request"); 
-	 }
-	
+	 }*/
+
 	/**
 	 * A.4.1.2 Execute HTTP Response Status Code
 	 * 1. Check response code is 4xx, 5xx or not 
