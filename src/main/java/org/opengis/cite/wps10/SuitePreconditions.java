@@ -1,10 +1,11 @@
 package org.opengis.cite.wps10;
 
-import org.testng.ITestContext;
-import org.testng.annotations.BeforeSuite;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.testng.ITestContext;
+import org.testng.Reporter;
+import org.testng.annotations.BeforeSuite;
 
 /**
  * Checks that various preconditions are satisfied before the test suite is run.
@@ -23,8 +24,10 @@ public class SuitePreconditions {
      */
     @BeforeSuite
     @SuppressWarnings("rawtypes")
-    public void verifyTestSubject(ITestContext testContext) {
-        SuiteAttribute testFileAttr = SuiteAttribute.TEST_SUBJ_FILE;
+    public void verifyTestSubject() {
+        SuiteAttribute testFileAttr = SuiteAttribute.TEST_SUBJECT;
+        ITestContext testContext = Reporter.getCurrentTestResult().getTestContext();
+        Object sut = testContext.getSuite().getAttribute(testFileAttr.getName());
         Object sutObj = testContext.getSuite().getAttribute(testFileAttr.getName());
         Class expectedType = testFileAttr.getType();
         if (null != sutObj && expectedType.isInstance(sutObj)) {

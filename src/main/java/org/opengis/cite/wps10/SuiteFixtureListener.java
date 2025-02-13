@@ -1,13 +1,5 @@
 package org.opengis.cite.wps10;
 
-import com.sun.jersey.api.client.Client;
-import org.opengis.cite.wps10.util.*;
-import org.testng.ISuite;
-import org.testng.ISuiteListener;
-import org.w3c.dom.Document;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -15,6 +7,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.stream.StreamSource;
+
+import org.opengis.cite.wps10.util.ClientUtils;
+import org.opengis.cite.wps10.util.TestSuiteLogger;
+import org.opengis.cite.wps10.util.URIUtils;
+import org.opengis.cite.wps10.util.ValidationUtils;
+import org.opengis.cite.wps10.util.XMLUtils;
+import org.testng.ISuite;
+import org.testng.ISuiteListener;
+import org.w3c.dom.Document;
+
+import jakarta.ws.rs.client.Client;
 
 /**
  * A listener that performs various tasks before and after a test suite is run,
