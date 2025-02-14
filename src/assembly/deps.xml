@@ -23,6 +23,7 @@
       <excludes>
         <exclude>org.opengis.cite.teamengine:teamengine-spi</exclude>
         <exclude>org.opengis.cite:schema-utils</exclude>
+        <exclude>org.glassfish.jersey.*:*</exclude>
       </excludes>
       <outputDirectory>/</outputDirectory>
       <unpack>false</unpack>
