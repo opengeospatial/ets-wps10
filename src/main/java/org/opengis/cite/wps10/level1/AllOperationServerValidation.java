@@ -33,168 +33,203 @@ import java.util.HashMap;
 import java.util.Map;
 
 ///latest-wps/WebProcessingService
+/**
+ * <p>
+ * AllOperationServerValidation class.
+ * </p>
+ *
+ */
 public class AllOperationServerValidation extends DataFixture {
-//	String service_url1 = "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
-//	String service_url2 = "http://93.187.166.52:8081/geoserver/ows";
+
+	// String service_url1 =
+	// "http://geoprocessing.demo.52north.org/latest-wps/WebProcessingService";
+	// String service_url2 = "http://93.187.166.52:8081/geoserver/ows";
 	String processId = "";
-	
+
+	/**
+	 * <p>
+	 * beforeClass.
+	 * </p>
+	 * @throws java.io.IOException if any.
+	 * @throws javax.xml.parsers.ParserConfigurationException if any.
+	 * @throws org.xml.sax.SAXException if any.
+	 * @throws net.sf.saxon.s9api.SaxonApiException if any.
+	 */
 	@BeforeClass
 	public void beforeClass() throws IOException, ParserConfigurationException, SAXException, SaxonApiException {
-		String serviceURL 	= testSubjectUri.toString();
-		
+		String serviceURL = testSubjectUri.toString();
+
 		String response = sendGetRequest(serviceURL, "?service=wps&request=GetCapabilities&language=en-US");
 		// Read xml string using Xpath2
 		InputSource sourceWR = new InputSource(new StringReader(response));
 		DocumentBuilderFactory dbfWR = DocumentBuilderFactory.newInstance();
 		javax.xml.parsers.DocumentBuilder dbWR = dbfWR.newDocumentBuilder();
-		Document documentWR = dbWR.parse(sourceWR);	
-		XdmValue xdmValue = XMLUtils.evaluateXPath2(new DOMSource(documentWR), "//ows:Identifier", getStandardBindings());
-		if(xdmValue.size() != 0) {
-			processId = xdmValue.itemAt(0).getStringValue();	
+		Document documentWR = dbWR.parse(sourceWR);
+		XdmValue xdmValue = XMLUtils.evaluateXPath2(new DOMSource(documentWR), "//ows:Identifier",
+				getStandardBindings());
+		if (xdmValue.size() != 0) {
+			processId = xdmValue.itemAt(0).getStringValue();
 		}
-		
+
 		CheckServiceHasProcess();
 	}
-	
+
 	private void CheckServiceHasProcess() {
-		if(processId.isEmpty()) {
+		if (processId.isEmpty()) {
 			throw new SkipException("Skip the DescribeProcess validation test due to no process offering.");
 		}
 	}
-	
+
 	/**
 	 * A.4.1.1 GetCapabilities HTTP protocol usage
+	 * @throws java.io.IOException if any.
+	 * @throws java.net.URISyntaxException if any.
 	 */
-	@Test(enabled = true, groups = "A.4.1. All operations implemented test module", description = "Verify that the rules and conventions governing the use of HTTP are observed") 
-	public void GetCapabilitiesHttpProtocolUsageValidation() throws IOException,URISyntaxException { 
-		String serviceURL 	= testSubjectUri.toString();
+	@Test(enabled = true, groups = "A.4.1. All operations implemented test module",
+			description = "Verify that the rules and conventions governing the use of HTTP are observed")
+	public void GetCapabilitiesHttpProtocolUsageValidation() throws IOException, URISyntaxException {
+		String serviceURL = testSubjectUri.toString();
 		String param = "?service=wps&version=1.0.0&request=GetCapabilities";
 		HttpURLConnection connection = GetConnection(serviceURL, param);
-	 
+
 		connection.setRequestMethod("GET");
-	  
+
 		Integer responseCode = connection.getResponseCode();
-	  
-		boolean result = (responseCode == HttpURLConnection.HTTP_OK );
-		Assert.assertTrue(result, "The server does not respond to HTTP request"); 
-	 }
+
+		boolean result = (responseCode == HttpURLConnection.HTTP_OK);
+		Assert.assertTrue(result, "The server does not respond to HTTP request");
+	}
 
 	/**
 	 * A.4.1.2 GetCapabilities HTTP response status code
+	 * @throws java.io.IOException if any.
+	 * @throws java.net.URISyntaxException if any.
+	 * @throws javax.xml.parsers.ParserConfigurationException if any.
+	 * @throws org.xml.sax.SAXException if any.
 	 */
-	@Test(enabled = true, groups = "A.4.1. All operations implemented test module", description = "Verify that a service request which generates an exception produces response that contains 1) a service exception report, and 2) a status code indicating an error.")
-	public void GetCapabilitiesHttpResponseStatusCodeValidation() throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
-		String serviceURL 	= testSubjectUri.toString();
+	@Test(enabled = true, groups = "A.4.1. All operations implemented test module",
+			description = "Verify that a service request which generates an exception produces response that contains 1) a service exception report, and 2) a status code indicating an error.")
+	public void GetCapabilitiesHttpResponseStatusCodeValidation()
+			throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
+		String serviceURL = testSubjectUri.toString();
 		String param = "?service=wps&version=1.0.0&request=GetCapabilities";
 		HttpURLConnection connection = GetConnection(serviceURL, param);
-		
+
 		connection.setRequestMethod("POST");
-		
+
 		Integer responseCode = connection.getResponseCode();
-		
+
 		// Check if response code is 4xx or 5xx
 		int firstDigit = Integer.parseInt(Integer.toString(responseCode).substring(0, 1));
-		boolean resCodeResult = (firstDigit == 4 || firstDigit == 5 ? true: false);
-		
+		boolean resCodeResult = (firstDigit == 4 || firstDigit == 5 ? true : false);
+
 		// Check if body message contain service exception report
 		String responseWrong = "";
-//		boolean resBodyMesResult = true;
-		if(responseCode > 299) {
+		// boolean resBodyMesResult = true;
+		if (responseCode > 299) {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
 			String inputLine;
 			StringBuffer response = new StringBuffer();
-			while ((inputLine = inputReader.readLine())!= null){
+			while ((inputLine = inputReader.readLine()) != null) {
 				response.append(inputLine);
 			}
 			inputReader.close();
-			//resBodyMesResult = (response != null ? true : false);
+			// resBodyMesResult = (response != null ? true : false);
 			responseWrong = response.toString();
 		}
 
 		boolean result = (resCodeResult == true ? true : false);
-		Assert.assertTrue(result, "the response code from server is not either 4xx (Client error) or 5xx (Server error)");
+		Assert.assertTrue(result,
+				"the response code from server is not either 4xx (Client error) or 5xx (Server error)");
 
-		//Read xml string using Xpath2
+		// Read xml string using Xpath2
 		InputSource sourceWR = new InputSource(new StringReader(responseWrong));
 		DocumentBuilderFactory dbfWR = DocumentBuilderFactory.newInstance();
 		javax.xml.parsers.DocumentBuilder dbWR = dbfWR.newDocumentBuilder();
 		Document documentWR = dbWR.parse(sourceWR);
 		String candidateNodeWR = CheckXPath2("//ows:ExceptionReport", documentWR);
-		
+
 		boolean wrongResultRequest = (candidateNodeWR.contains("XdmEmptySequence") ? false : true);
-		
+
 		boolean finalResult = (wrongResultRequest == true ? true : false);
 		Assert.assertTrue(finalResult, "The response body from server does not contain a service exception report.");
 	}
-	
+
 	/**
 	 * A.4.1.1 DescribeProcess HTTP protocol usage
-	 * @throws IOException 
-	 * @throws URISyntaxException 
+	 * @throws java.io.IOException
+	 * @throws java.net.URISyntaxException
 	 */
-	@Test(enabled = true, groups = "A.4.1. All operations implemented test module", description = "Verify that the rules and conventions governing the use of HTTP are observed") 
-	public void DescribeProcessHttpProtocolUsageValidation() throws IOException,URISyntaxException { 
-		String serviceURL 	= testSubjectUri.toString();
+	@Test(enabled = true, groups = "A.4.1. All operations implemented test module",
+			description = "Verify that the rules and conventions governing the use of HTTP are observed")
+	public void DescribeProcessHttpProtocolUsageValidation() throws IOException, URISyntaxException {
+		String serviceURL = testSubjectUri.toString();
 		String param = "?service=wps&request=DescribeProcess&Version=1.0.0&identifier=" + processId;
 		HttpURLConnection connection = GetConnection(serviceURL, param);
-	 
+
 		connection.setRequestMethod("GET");
-	  
+
 		Integer responseCode = connection.getResponseCode();
-	  
-		boolean result = (responseCode == HttpURLConnection.HTTP_OK );
-		Assert.assertTrue(result, "The server does not respond to HTTP request"); 
-	 }
-	
+
+		boolean result = (responseCode == HttpURLConnection.HTTP_OK);
+		Assert.assertTrue(result, "The server does not respond to HTTP request");
+	}
+
 	/**
 	 * A.4.1.2 DescribeProcess HTTP response status code
-	 * 
-	 * 1. Send HTTP GET Request without defining indentifier
-	 * 2. Check if the response code is 4XX or 5XX
-	 * 3. Check if the response body xml contains node \\ows:ExceptionReport
+	 *
+	 * 1. Send HTTP GET Request without defining indentifier 2. Check if the response code
+	 * is 4XX or 5XX 3. Check if the response body xml contains node \\ows:ExceptionReport
+	 * @throws java.io.IOException if any.
+	 * @throws java.net.URISyntaxException if any.
+	 * @throws javax.xml.parsers.ParserConfigurationException if any.
+	 * @throws org.xml.sax.SAXException if any.
 	 */
-	@Test(groups = "A.4.1. All operations implemented test module", description = "Verify that a service request which generates an exception produces response that contains 1) a service exception report, and 2) a status code indicating an error.")
-	public void DescribeProcessHttpResponseStatusCodeValidation() throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
-		String serviceURL 	= testSubjectUri.toString();
+	@Test(groups = "A.4.1. All operations implemented test module",
+			description = "Verify that a service request which generates an exception produces response that contains 1) a service exception report, and 2) a status code indicating an error.")
+	public void DescribeProcessHttpResponseStatusCodeValidation()
+			throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
+		String serviceURL = testSubjectUri.toString();
 		String param = "?service=wps&request=DescribeProcess&Version=1.0.0";
 		HttpURLConnection connection = GetConnection(serviceURL, param);
-		
+
 		connection.setRequestMethod("POST");
-		
+
 		Integer responseCode = connection.getResponseCode();
-		
+
 		// Check if response code is 4xx or 5xx
 		int firstDigit = Integer.parseInt(Integer.toString(responseCode).substring(0, 1));
-		boolean resCodeResult = (firstDigit == 4 || firstDigit == 5 ? true: false);
-		
+		boolean resCodeResult = (firstDigit == 4 || firstDigit == 5 ? true : false);
+
 		// Check if body message contain service exception report
 		String responseWrong = "";
-//		boolean resBodyMesResult = true;
-		if(responseCode > 299) {
+		// boolean resBodyMesResult = true;
+		if (responseCode > 299) {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
 			String inputLine;
 			StringBuffer response = new StringBuffer();
-			while ((inputLine = inputReader.readLine())!= null){
+			while ((inputLine = inputReader.readLine()) != null) {
 				response.append(inputLine);
 			}
 			inputReader.close();
-			//resBodyMesResult = (response != null ? true : false);
-			
+			// resBodyMesResult = (response != null ? true : false);
+
 			responseWrong = response.toString();
 		}
-		
+
 		boolean result = (resCodeResult == true ? true : false);
-		Assert.assertTrue(result, "the response code from server is not either 4xx (Client error) or 5xx (Server error)");
-		
-		//Read xml string using Xpath2
+		Assert.assertTrue(result,
+				"the response code from server is not either 4xx (Client error) or 5xx (Server error)");
+
+		// Read xml string using Xpath2
 		InputSource sourceWR = new InputSource(new StringReader(responseWrong));
 		DocumentBuilderFactory dbfWR = DocumentBuilderFactory.newInstance();
 		javax.xml.parsers.DocumentBuilder dbWR = dbfWR.newDocumentBuilder();
 		Document documentWR = dbWR.parse(sourceWR);
 		String candidateNodeWR = CheckXPath2("//ows:ExceptionReport", documentWR);
-		
+
 		boolean wrongResultRequest = (candidateNodeWR.contains("XdmEmptySequence") ? false : true);
-		
+
 		boolean finalResult = (wrongResultRequest == true ? true : false);
 		Assert.assertTrue(finalResult, "The response body from server does not contain a service exception report.");
 	}
@@ -202,83 +237,111 @@ public class AllOperationServerValidation extends DataFixture {
 	/**
 	 * A.4.1.1 Execute HTTP protocol usage
 	 */
-/*	@Test(enabled = true, groups = "A.4.1. All operations implemented test module", description = "Verify that the rules and conventions governing the use of HTTP are observed")
-	public void ExecuteHttpProtocolUsageValidation() throws IOException,URISyntaxException { 
-		String serviceURL 	= testSubjectUri.toString();
-		String param = "?service=wps&version=1.0.0&request=Execute&identifier=org.n52.wps.server.r.demo.uniform.table&DataInputs=min=0;max=10;n=5;";
-		HttpURLConnection connection = GetConnection(serviceURL, param);
-	 
-		connection.setRequestMethod("GET");
-	  
-		Integer responseCode = connection.getResponseCode();
-	  
-		boolean result = (responseCode == HttpURLConnection.HTTP_OK );
-		Assert.assertTrue(result, "The server does not respond to HTTP request"); 
-	 }*/
+	/*
+	 * @Test(enabled = true, groups = "A.4.1. All operations implemented test module",
+	 * description =
+	 * "Verify that the rules and conventions governing the use of HTTP are observed")
+	 * public void ExecuteHttpProtocolUsageValidation() throws
+	 * IOException,URISyntaxException { String serviceURL = testSubjectUri.toString();
+	 * String param =
+	 * "?service=wps&version=1.0.0&request=Execute&identifier=org.n52.wps.server.r.demo.uniform.table&DataInputs=min=0;max=10;n=5;";
+	 * HttpURLConnection connection = GetConnection(serviceURL, param);
+	 *
+	 * connection.setRequestMethod("GET");
+	 *
+	 * Integer responseCode = connection.getResponseCode();
+	 *
+	 * boolean result = (responseCode == HttpURLConnection.HTTP_OK );
+	 * Assert.assertTrue(result, "The server does not respond to HTTP request"); }
+	 */
 
 	/**
-	 * A.4.1.2 Execute HTTP Response Status Code
-	 * 1. Check response code is 4xx, 5xx or not 
-	 * 2. Check response text from request is exception or not 
-	 * 3. Return exceptionCode value
+	 * A.4.1.2 Execute HTTP Response Status Code 1. Check response code is 4xx, 5xx or not
+	 * 2. Check response text from request is exception or not 3. Return exceptionCode
+	 * value
+	 * @throws java.io.IOException if any.
+	 * @throws java.net.URISyntaxException if any.
+	 * @throws javax.xml.parsers.ParserConfigurationException if any.
+	 * @throws org.xml.sax.SAXException if any.
 	 */
-	@Test(enabled=true, groups = "A.4.1. All operations implemented test module", description = "Verify that a service request which generates an exception produces response that contains 1) a service exception report, and 2) a status code indicating an error.") 
-	public void ExecuteHttpResponseStatusCodeValidation() throws IOException, URISyntaxException, ParserConfigurationException, SAXException  { 
-		String serviceURL 	= testSubjectUri.toString();
+	@Test(enabled = true, groups = "A.4.1. All operations implemented test module",
+			description = "Verify that a service request which generates an exception produces response that contains 1) a service exception report, and 2) a status code indicating an error.")
+	public void ExecuteHttpResponseStatusCodeValidation()
+			throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
+		String serviceURL = testSubjectUri.toString();
 		String param = "?service=wps&version=1.0.0&request=DescribeProcess&identifier=JTS:Invalid";
 		HttpURLConnection connection = GetConnection(serviceURL, param);
-		
+
 		connection.setRequestMethod("POST");
-		
+
 		Integer responseCode = connection.getResponseCode();
-		
+
 		// Check if response code is 4xx or 5xx
 		int firstDigit = Integer.parseInt(Integer.toString(responseCode).substring(0, 1));
-		boolean resCodeResult = (firstDigit == 4 || firstDigit == 5 ? true: false);
-		
+		boolean resCodeResult = (firstDigit == 4 || firstDigit == 5 ? true : false);
+
 		// Check if body message contain service exception report
 		String responseWrong = "";
-//		boolean resBodyMesResult = true;
-		if(responseCode > 299) {
+		// boolean resBodyMesResult = true;
+		if (responseCode > 299) {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
 			String inputLine;
 			StringBuffer response = new StringBuffer();
-			while ((inputLine = inputReader.readLine())!= null){
+			while ((inputLine = inputReader.readLine()) != null) {
 				response.append(inputLine);
 			}
 			inputReader.close();
-			//resBodyMesResult = (response != null ? true : false);
+			// resBodyMesResult = (response != null ? true : false);
 			responseWrong = response.toString();
 		}
 
 		boolean result = (resCodeResult == true ? true : false);
-		Assert.assertTrue(result, "the response code from server is not either 4xx (Client error) or 5xx (Server error)");
+		Assert.assertTrue(result,
+				"the response code from server is not either 4xx (Client error) or 5xx (Server error)");
 
-		//Read xml string using Xpath2
+		// Read xml string using Xpath2
 		InputSource sourceWR = new InputSource(new StringReader(responseWrong));
 		DocumentBuilderFactory dbfWR = DocumentBuilderFactory.newInstance();
 		javax.xml.parsers.DocumentBuilder dbWR = dbfWR.newDocumentBuilder();
 		Document documentWR = dbWR.parse(sourceWR);
 		String candidateNodeWR = CheckXPath2("//ows:ExceptionReport", documentWR);
-		
+
 		boolean wrongResultRequest = (candidateNodeWR.contains("XdmEmptySequence") ? false : true);
-		
+
 		boolean finalResult = (wrongResultRequest == true ? true : false);
 		Assert.assertTrue(finalResult, "The response body from server does not contain a service exception report.");
 	}
-	
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * <p>
+	 * GetConnection.
+	 * </p>
+	 * @param serviceURL a {@link java.lang.String} object
+	 * @param param a {@link java.lang.String} object
+	 * @return a {@link java.net.HttpURLConnection} object
+	 * @throws java.io.IOException if any.
+	 */
 	public HttpURLConnection GetConnection(String serviceURL, String param) throws IOException {
 		URL urlObj = new URL(serviceURL + param);
 		return (HttpURLConnection) urlObj.openConnection();
 	}
-	
+
+	/**
+	 * <p>
+	 * postMessage.
+	 * </p>
+	 * @param xmlString a {@link java.lang.String} object
+	 * @param serviceURL a {@link java.lang.String} object
+	 * @return a {@link java.lang.String} object
+	 * @throws java.io.IOException if any.
+	 */
 	public String postMessage(String xmlString, String serviceURL) throws IOException {
 		StringBuffer content = new StringBuffer();
 		URL url = new URL(serviceURL);
-		
+
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setRequestMethod("POST");
 		conn.setRequestProperty("Content-type", "text/xml");
@@ -296,11 +359,11 @@ public class AllOperationServerValidation extends DataFixture {
 		// read response
 		BufferedReader in;
 		int responseCode = conn.getResponseCode();
-		if(responseCode > 299)
+		if (responseCode > 299)
 			in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 		else
 			in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		
+
 		String str;
 		while ((str = in.readLine()) != null) {
 			content.append(str);
@@ -308,101 +371,113 @@ public class AllOperationServerValidation extends DataFixture {
 		in.close();
 		return content.toString();
 	}
-	
+
+	/**
+	 * <p>
+	 * sendGetRequest.
+	 * </p>
+	 * @param serviceURL a {@link java.lang.String} object
+	 * @param param a {@link java.lang.String} object
+	 * @return a {@link java.lang.String} object
+	 * @throws java.io.IOException if any.
+	 */
 	public String sendGetRequest(String serviceURL, String param) throws IOException {
-        StringBuilder response = new StringBuilder();
-        HttpURLConnection conn = GetConnection(serviceURL, param);
- 
-        // Read all the text returned by the server
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String str;
-        while ((str = in.readLine()) != null) {
-            response.append(str);
-        }
-        in.close();
+		StringBuilder response = new StringBuilder();
+		HttpURLConnection conn = GetConnection(serviceURL, param);
+
+		// Read all the text returned by the server
+		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		String str;
+		while ((str = in.readLine()) != null) {
+			response.append(str);
+		}
+		in.close();
 		return response.toString();
 	}
-	
+
+	/**
+	 * <p>
+	 * getStandardBindings.
+	 * </p>
+	 * @return a {@link java.util.Map} object
+	 */
 	public Map<String, String> getStandardBindings() {
-    	Map<String, String> nsBindings = new HashMap<String, String>();    	
-        nsBindings.put(Namespaces.OWS, "ows");
-        nsBindings.put(Namespaces.XLINK, "xlink");
-        nsBindings.put(Namespaces.GML, "gml");
-        nsBindings.put(Namespaces.WPS, "wps");
-        return nsBindings;
-    }
-	
+		Map<String, String> nsBindings = new HashMap<String, String>();
+		nsBindings.put(Namespaces.OWS, "ows");
+		nsBindings.put(Namespaces.XLINK, "xlink");
+		nsBindings.put(Namespaces.GML, "gml");
+		nsBindings.put(Namespaces.WPS, "wps");
+		return nsBindings;
+	}
+
 	/**
 	 * Check XPath2.0
-	 * 
-	 * @param xpath
-	 *            String denoting an xpath syntax
+	 * @param xpath String denoting an xpath syntax
 	 * @return XdmValue converted to string
+	 * @param testSubject a {@link org.w3c.dom.Document} object
 	 */
 	public String CheckXPath2(String xpath, Document testSubject) {
 		XdmValue xdmValue = null;
 		try {
 			xdmValue = evaluateXPath2(new DOMSource(testSubject), xpath, getStandardBindings());
-		} catch (SaxonApiException e) {
+		}
+		catch (SaxonApiException e) {
 			e.printStackTrace();
-		};
+		}
+		;
 		return xdmValue.toString();
 	}
-	
+
 	/**
-     * Evaluates an XPath 2.0 expression using the Saxon s9api interfaces.
-     * 
-     * @param xmlSource
-     *            The XML Source.
-     * @param expr
-     *            The XPath expression to be evaluated.
-     * @param nsBindings
-     *            A collection of namespace bindings required to evaluate the
-     *            XPath expression, where each entry maps a namespace URI (key)
-     *            to a prefix (value); this may be {@code null} if not needed.
-     * @return An XdmValue object representing a value in the XDM data model;
-     *         this is a sequence of zero or more items, where each item is
-     *         either an atomic value or a node.
-     * @throws SaxonApiException
-     *             If an error occurs while evaluating the expression; this
-     *             always wraps some other underlying exception.
-     */
-    public XdmValue evaluateXPath2(Source xmlSource, String expr,
-            Map<String, String> nsBindings) throws SaxonApiException {
-        Processor proc = new Processor(false);
-        XPathCompiler compiler = proc.newXPathCompiler();
-       if (null != nsBindings) {
-            for (String nsURI : nsBindings.keySet()) {
-                compiler.declareNamespace(nsBindings.get(nsURI), nsURI);
-            }
-        }
-        XPathSelector xpath = compiler.compile(expr).load();
-        DocumentBuilder builder = proc.newDocumentBuilder();
-        XdmNode node = null;
-        if (DOMSource.class.isInstance(xmlSource)) {
-            DOMSource domSource = (DOMSource) xmlSource;
-            node = builder.wrap(domSource.getNode());
-        } else {
-            node = builder.build(xmlSource);
-        }
-        xpath.setContextItem(node);
-        return xpath.evaluate();
-    }
-    
-    private static StringBuilder sendRequestByPOST(String requestURL, String XML) throws IOException {		
+	 * Evaluates an XPath 2.0 expression using the Saxon s9api interfaces.
+	 * @param xmlSource The XML Source.
+	 * @param expr The XPath expression to be evaluated.
+	 * @param nsBindings A collection of namespace bindings required to evaluate the XPath
+	 * expression, where each entry maps a namespace URI (key) to a prefix (value); this
+	 * may be {@code null} if not needed.
+	 * @return An XdmValue object representing a value in the XDM data model; this is a
+	 * sequence of zero or more items, where each item is either an atomic value or a
+	 * node.
+	 * @throws net.sf.saxon.s9api.SaxonApiException If an error occurs while evaluating
+	 * the expression; this always wraps some other underlying exception.
+	 */
+	public XdmValue evaluateXPath2(Source xmlSource, String expr, Map<String, String> nsBindings)
+			throws SaxonApiException {
+		Processor proc = new Processor(false);
+		XPathCompiler compiler = proc.newXPathCompiler();
+		if (null != nsBindings) {
+			for (String nsURI : nsBindings.keySet()) {
+				compiler.declareNamespace(nsBindings.get(nsURI), nsURI);
+			}
+		}
+		XPathSelector xpath = compiler.compile(expr).load();
+		DocumentBuilder builder = proc.newDocumentBuilder();
+		XdmNode node = null;
+		if (DOMSource.class.isInstance(xmlSource)) {
+			DOMSource domSource = (DOMSource) xmlSource;
+			node = builder.wrap(domSource.getNode());
+		}
+		else {
+			node = builder.build(xmlSource);
+		}
+		xpath.setContextItem(node);
+		return xpath.evaluate();
+	}
+
+	private static StringBuilder sendRequestByPOST(String requestURL, String XML) throws IOException {
 		URL obj = new URL(requestURL);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		con.setRequestProperty("Content-Type", "application/xml");
 		con.setRequestMethod("POST");
-		
+
 		con.setDoOutput(true);
 		OutputStream os = con.getOutputStream();
 		os.write(XML.getBytes());
 		os.flush();
 		os.close();
-		
+
 		int responseCode = con.getResponseCode();
-		if (responseCode == HttpURLConnection.HTTP_OK) { 
+		if (responseCode == HttpURLConnection.HTTP_OK) {
 			InputStream inputStream = con.getInputStream();
 			byte[] res = new byte[2048];
 			int i = 0;
@@ -412,53 +487,52 @@ public class AllOperationServerValidation extends DataFixture {
 			}
 			inputStream.close();
 			return response;
-		} else {
+		}
+		else {
 			System.out.println("HTTP POST request not worked");
 			return null;
 		}
 	}
-	
-	private static boolean isHTTPValid(String urlString, String reqMethod) throws IOException {
-        URL url = new URL(urlString);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod(reqMethod);
-        int statusCode = con.getResponseCode(); 
-        return (statusCode/100 != 2) ? false : true;
-    }
-	
-	private static boolean isXMLSchemaValid(String xsdPath, String xmlString){        
-        try {
-            SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = factory.newSchema(new File(xsdPath));
-            Validator validator = schema.newValidator();
-            validator.validate(new StreamSource(new StringReader(xmlString)));
-        } catch (IOException | SAXException e) {
-            System.out.println("Exception: "+e.getMessage());
-            return false;
-        }
-        return true;
-    }
-	
-	private static String getStringFromXML(Document xmlDocument)
-    {
-    	String xmlString = "";
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer transformer;
-        try {
-            transformer = tf.newTransformer();
-            StringWriter writer = new StringWriter();
-            transformer.transform(new DOMSource(xmlDocument), new StreamResult(writer));     
-            xmlString = writer.getBuffer().toString();  
-        } 
-        catch (TransformerException e) 
-        {
-            e.printStackTrace();
-        }
-        catch (Exception e) 
-        {
-            e.printStackTrace();
-        }        
-        return xmlString;
-    }
-}
 
+	private static boolean isHTTPValid(String urlString, String reqMethod) throws IOException {
+		URL url = new URL(urlString);
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+		con.setRequestMethod(reqMethod);
+		int statusCode = con.getResponseCode();
+		return (statusCode / 100 != 2) ? false : true;
+	}
+
+	private static boolean isXMLSchemaValid(String xsdPath, String xmlString) {
+		try {
+			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+			Schema schema = factory.newSchema(new File(xsdPath));
+			Validator validator = schema.newValidator();
+			validator.validate(new StreamSource(new StringReader(xmlString)));
+		}
+		catch (IOException | SAXException e) {
+			System.out.println("Exception: " + e.getMessage());
+			return false;
+		}
+		return true;
+	}
+
+	private static String getStringFromXML(Document xmlDocument) {
+		String xmlString = "";
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer;
+		try {
+			transformer = tf.newTransformer();
+			StringWriter writer = new StringWriter();
+			transformer.transform(new DOMSource(xmlDocument), new StreamResult(writer));
+			xmlString = writer.getBuffer().toString();
+		}
+		catch (TransformerException e) {
+			e.printStackTrace();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return xmlString;
+	}
+
+}

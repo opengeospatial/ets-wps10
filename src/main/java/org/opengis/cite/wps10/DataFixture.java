@@ -28,210 +28,223 @@ import java.net.URL;
 import java.util.*;
 
 /**
- * A supporting base class that provides a common fixture for validating data
- * sets. The configuration methods are invoked before any that may be defined in
- * a subclass.
+ * A supporting base class that provides a common fixture for validating data sets. The
+ * configuration methods are invoked before any that may be defined in a subclass.
  */
 public class DataFixture {
 
-    /**
-     * Files containing tested subject.
-     */
-    protected File dataFile;
-    protected Document originalSubject;
-    protected Document testSubject;
-    protected URI testSubjectUri;
-    
-    protected String Resource_GML_Path = "/org/opengis/cite/om20/xsd/opengis/gml/3.2.1/gml-3.2.1.xsd";
-    protected String Resource_SWE_Path = "/org/opengis/cite/sweCommon/2.0/swe_2.0.1_flatten/swe_2.0.1.xsd";
-    /**
-     * An XSModel object representing a GML application schema.
-     */
-    protected XSModel model;
-    protected URI executeHttpGetUri;
-    protected Document executeRequestFileRawDataOutputSubject;
-    protected Document executeRequestFileResponseDocumentOutputSubject;
-    protected Document executeRequestFileUpdatingResponseDocumentOutputSubject;
-    
-	
-    public DataFixture() {
-    }
-    
-    @BeforeClass(alwaysRun = true)
-    public void obtainTestSubject(ITestContext testContext){
-    	Assert.assertTrue(
-                testContext.getSuite().getAttributeNames()
-                        .contains(SuiteAttribute.XML.getName()),
-                "No data to validate.");
-        this.dataFile = (File) testContext.getSuite().getAttribute(
-                SuiteAttribute.XML.getName());
-        this.model = (XSModel) testContext.getSuite().getAttribute(
-                SuiteAttribute.XSMODEL.getName());
-        
-        Object obj = testContext.getSuite().getAttribute(
-                SuiteAttribute.TEST_SUBJECT.getName());
-        if ((null != obj) && Document.class.isAssignableFrom(obj.getClass())) {
-            this.testSubject = Document.class.cast(obj);
-            originalSubject = Document.class.cast(obj);
-        }
-        
-        Object uriObj = testContext.getSuite().getAttribute(
-                SuiteAttribute.TEST_SUBJECT_URI.getName());
-        if ((null != uriObj)){        	
-            this.testSubjectUri = URI.class.cast(uriObj);
-            System.out.println(this.testSubjectUri.toString());        	
-        }
-        
-        /* START OF PARAMETERS */        
-        Object excuteHttpGetUriObj = testContext.getSuite().getAttribute(
-                SuiteAttribute.EXECUTE_HTTP_GET_URI.getName());
-        if ((null != excuteHttpGetUriObj)){        	
-            this.executeHttpGetUri = URI.class.cast(excuteHttpGetUriObj);
-            System.out.println(this.executeHttpGetUri.toString());        	
-        }
-        
-        Object executeRequestFileRawDataOutputObj = testContext.getSuite().getAttribute(SuiteAttribute.EXECUTE_REQUEST_RAW_DATA_URI.getName());
-        if((null != executeRequestFileRawDataOutputObj) && Document.class.isAssignableFrom(executeRequestFileRawDataOutputObj.getClass())) {
-        	this.executeRequestFileRawDataOutputSubject = Document.class.cast(executeRequestFileRawDataOutputObj);
-        }
-        
-        Object executeRequestFileResponseDocumentOutputObj = testContext.getSuite().getAttribute(SuiteAttribute.EXECUTE_REQUEST_RESPONSE_DOCUMENT_URI.getName());
-        if((null != executeRequestFileResponseDocumentOutputObj) && Document.class.isAssignableFrom(executeRequestFileResponseDocumentOutputObj.getClass())) {
-        	this.executeRequestFileResponseDocumentOutputSubject = Document.class.cast(executeRequestFileResponseDocumentOutputObj);
-        }
-        
-        Object executeRequestFileUpdatingResponseDocumentOutputObj = testContext.getSuite().getAttribute(SuiteAttribute.EXECUTE_REQUEST_UPDATING_RESPONSE_DOCUMENT_URI.getName());
-        if((null != executeRequestFileUpdatingResponseDocumentOutputObj) && Document.class.isAssignableFrom(executeRequestFileUpdatingResponseDocumentOutputObj.getClass())) {
-        	this.executeRequestFileUpdatingResponseDocumentOutputSubject = Document.class.cast(executeRequestFileUpdatingResponseDocumentOutputObj);
-        }
-        
-        /* CLOSE */
-    }
-    /**
-     * A configuration method ({@code BeforeClass}) that initializes the test
-     * fixture as follows:
-     * <ol>
-     * <li>Obtain the GML data set from the test context. The suite attribute
-     * {@link org.opengis.cite.iso19136.SuiteAttribute#GML} should evaluate to a
-     * {@code File} object containing the GML data. If no such file reference
-     * exists the tests are skipped.</li>
-     * <li>Obtain the schema model from the test context. The suite attribute
-     * {@link org.opengis.cite.iso19136.SuiteAttribute#XSMODEL model} should
-     * evaluate to an {@code XSModel} object representing the GML application
-     * schema.</li>
-     * </ol>
-     * 
-     * @param testContext
-     *            The test (group) context.
-     */
-//    @BeforeClass(alwaysRun = true)
-//    public void initDataFixture(ITestContext testContext) {
-//        Assert.assertTrue(
-//                testContext.getSuite().getAttributeNames()
-//                        .contains(SuiteAttribute.XML.getName()),
-//                "No data to validate.");
-//        this.dataFile = (File) testContext.getSuite().getAttribute(
-//                SuiteAttribute.XML.getName());
-//        this.model = (XSModel) testContext.getSuite().getAttribute(
-//                SuiteAttribute.XSMODEL.getName());
-//        
-//        Object obj = testContext.getSuite().getAttribute(
-//                SuiteAttribute.TEST_SUBJECT.getName());
-//        if ((null != obj) && Document.class.isAssignableFrom(obj.getClass())) {
-//            this.testSubject = Document.class.cast(obj);
-//        }
-//    }
+	/**
+	 * Files containing tested subject.
+	 */
+	protected File dataFile;
 
-    /**
-     * Sets the data file. This is a convenience method intended to facilitate
-     * unit testing.
-     * 
-     * @param dataFile
-     *            A File containing the data to be validated.
-     */
-    public void setDataFile(File dataFile) {
-        this.dataFile = dataFile;
-    }
+	protected Document originalSubject;
 
-    /**
-     * Sets the schema model (for unit testing purposes).
-     * 
-     * @param xsModel
-     *            An XSModel object representing a GML application schema.
-     */
-    public void setSchemaModel(XSModel xsModel) {
-        this.model = xsModel;
-    }
+	protected Document testSubject;
 
-    /**
-     * Generates an XPath expression to find all instances of the given elements
-     * in the data being validated. The supplied namespace bindings will be
-     * supplemented if necessary.
-     * 
-     * @param elemNames
-     *            A list of qualified names corresponding to element
-     *            declarations.
-     * @param namespaceBindings
-     *            A collection of namespace bindings required to evaluate the
-     *            XPath expression, where each entry maps a namespace URI (key)
-     *            to a prefix (value).
-     * @return An XPath (1.0) expression.
-     */
-    public String generateXPathExpression(List<QName> elemNames,
-            Map<String, String> namespaceBindings) {
-        StringBuilder xpath = new StringBuilder();
-        ListIterator<QName> itr = elemNames.listIterator();
-        while (itr.hasNext()) {
-            QName qName = itr.next();
-            String namespace = qName.getNamespaceURI();
-            String prefix = namespaceBindings.get(namespace);
-            if (null == prefix) {
-                prefix = (namespace.equals(Namespaces.TargetStandard)) ? Namespaces.TargetStandardPrefix : "ns"
-                        + itr.previousIndex();
-                namespaceBindings.put(namespace, prefix);
-            }
-            xpath.append("//").append(prefix).append(":");
-            xpath.append(qName.getLocalPart());
-            if (itr.hasNext())
-                xpath.append(" | "); // union operator
-        }
-        return xpath.toString();
-    }
-    
+	protected URI testSubjectUri;
 
+	protected String Resource_GML_Path = "/org/opengis/cite/om20/xsd/opengis/gml/3.2.1/gml-3.2.1.xsd";
+
+	protected String Resource_SWE_Path = "/org/opengis/cite/sweCommon/2.0/swe_2.0.1_flatten/swe_2.0.1.xsd";
+
+	/**
+	 * An XSModel object representing a GML application schema.
+	 */
+	protected XSModel model;
+
+	protected URI executeHttpGetUri;
+
+	protected Document executeRequestFileRawDataOutputSubject;
+
+	protected Document executeRequestFileResponseDocumentOutputSubject;
+
+	protected Document executeRequestFileUpdatingResponseDocumentOutputSubject;
+
+	/**
+	 * <p>
+	 * Constructor for DataFixture.
+	 * </p>
+	 */
+	public DataFixture() {
+	}
+
+	/**
+	 * <p>
+	 * obtainTestSubject.
+	 * </p>
+	 * @param testContext a {@link org.testng.ITestContext} object
+	 */
+	@BeforeClass(alwaysRun = true)
+	public void obtainTestSubject(ITestContext testContext) {
+		Assert.assertTrue(testContext.getSuite().getAttributeNames().contains(SuiteAttribute.XML.getName()),
+				"No data to validate.");
+		this.dataFile = (File) testContext.getSuite().getAttribute(SuiteAttribute.XML.getName());
+		this.model = (XSModel) testContext.getSuite().getAttribute(SuiteAttribute.XSMODEL.getName());
+
+		Object obj = testContext.getSuite().getAttribute(SuiteAttribute.TEST_SUBJECT.getName());
+		if ((null != obj) && Document.class.isAssignableFrom(obj.getClass())) {
+			this.testSubject = Document.class.cast(obj);
+			originalSubject = Document.class.cast(obj);
+		}
+
+		Object uriObj = testContext.getSuite().getAttribute(SuiteAttribute.TEST_SUBJECT_URI.getName());
+		if ((null != uriObj)) {
+			this.testSubjectUri = URI.class.cast(uriObj);
+			System.out.println(this.testSubjectUri.toString());
+		}
+
+		/* START OF PARAMETERS */
+		Object excuteHttpGetUriObj = testContext.getSuite().getAttribute(SuiteAttribute.EXECUTE_HTTP_GET_URI.getName());
+		if ((null != excuteHttpGetUriObj)) {
+			this.executeHttpGetUri = URI.class.cast(excuteHttpGetUriObj);
+			System.out.println(this.executeHttpGetUri.toString());
+		}
+
+		Object executeRequestFileRawDataOutputObj = testContext.getSuite()
+			.getAttribute(SuiteAttribute.EXECUTE_REQUEST_RAW_DATA_URI.getName());
+		if ((null != executeRequestFileRawDataOutputObj)
+				&& Document.class.isAssignableFrom(executeRequestFileRawDataOutputObj.getClass())) {
+			this.executeRequestFileRawDataOutputSubject = Document.class.cast(executeRequestFileRawDataOutputObj);
+		}
+
+		Object executeRequestFileResponseDocumentOutputObj = testContext.getSuite()
+			.getAttribute(SuiteAttribute.EXECUTE_REQUEST_RESPONSE_DOCUMENT_URI.getName());
+		if ((null != executeRequestFileResponseDocumentOutputObj)
+				&& Document.class.isAssignableFrom(executeRequestFileResponseDocumentOutputObj.getClass())) {
+			this.executeRequestFileResponseDocumentOutputSubject = Document.class
+				.cast(executeRequestFileResponseDocumentOutputObj);
+		}
+
+		Object executeRequestFileUpdatingResponseDocumentOutputObj = testContext.getSuite()
+			.getAttribute(SuiteAttribute.EXECUTE_REQUEST_UPDATING_RESPONSE_DOCUMENT_URI.getName());
+		if ((null != executeRequestFileUpdatingResponseDocumentOutputObj)
+				&& Document.class.isAssignableFrom(executeRequestFileUpdatingResponseDocumentOutputObj.getClass())) {
+			this.executeRequestFileUpdatingResponseDocumentOutputSubject = Document.class
+				.cast(executeRequestFileUpdatingResponseDocumentOutputObj);
+		}
+
+		/* CLOSE */
+	}
+	/**
+	 * A configuration method ({@code BeforeClass}) that initializes the test fixture as
+	 * follows:
+	 * <ol>
+	 * <li>Obtain the GML data set from the test context. The suite attribute
+	 * {@link org.opengis.cite.iso19136.SuiteAttribute#GML} should evaluate to a
+	 * {@code File} object containing the GML data. If no such file reference exists the
+	 * tests are skipped.</li>
+	 * <li>Obtain the schema model from the test context. The suite attribute
+	 * {@link org.opengis.cite.iso19136.SuiteAttribute#XSMODEL model} should evaluate to
+	 * an {@code XSModel} object representing the GML application schema.</li>
+	 * </ol>
+	 * @param testContext The test (group) context.
+	 */
+	// @BeforeClass(alwaysRun = true)
+	// public void initDataFixture(ITestContext testContext) {
+	// Assert.assertTrue(
+	// testContext.getSuite().getAttributeNames()
+	// .contains(SuiteAttribute.XML.getName()),
+	// "No data to validate.");
+	// this.dataFile = (File) testContext.getSuite().getAttribute(
+	// SuiteAttribute.XML.getName());
+	// this.model = (XSModel) testContext.getSuite().getAttribute(
+	// SuiteAttribute.XSMODEL.getName());
+	//
+	// Object obj = testContext.getSuite().getAttribute(
+	// SuiteAttribute.TEST_SUBJECT.getName());
+	// if ((null != obj) && Document.class.isAssignableFrom(obj.getClass())) {
+	// this.testSubject = Document.class.cast(obj);
+	// }
+	// }
+
+	/**
+	 * Sets the data file. This is a convenience method intended to facilitate unit
+	 * testing.
+	 * @param dataFile A File containing the data to be validated.
+	 */
+	public void setDataFile(File dataFile) {
+		this.dataFile = dataFile;
+	}
+
+	/**
+	 * Sets the schema model (for unit testing purposes).
+	 * @param xsModel An XSModel object representing a GML application schema.
+	 */
+	public void setSchemaModel(XSModel xsModel) {
+		this.model = xsModel;
+	}
+
+	/**
+	 * Generates an XPath expression to find all instances of the given elements in the
+	 * data being validated. The supplied namespace bindings will be supplemented if
+	 * necessary.
+	 * @param elemNames A list of qualified names corresponding to element declarations.
+	 * @param namespaceBindings A collection of namespace bindings required to evaluate
+	 * the XPath expression, where each entry maps a namespace URI (key) to a prefix
+	 * (value).
+	 * @return An XPath (1.0) expression.
+	 */
+	public String generateXPathExpression(List<QName> elemNames, Map<String, String> namespaceBindings) {
+		StringBuilder xpath = new StringBuilder();
+		ListIterator<QName> itr = elemNames.listIterator();
+		while (itr.hasNext()) {
+			QName qName = itr.next();
+			String namespace = qName.getNamespaceURI();
+			String prefix = namespaceBindings.get(namespace);
+			if (null == prefix) {
+				prefix = (namespace.equals(Namespaces.TargetStandard)) ? Namespaces.TargetStandardPrefix
+						: "ns" + itr.previousIndex();
+				namespaceBindings.put(namespace, prefix);
+			}
+			xpath.append("//").append(prefix).append(":");
+			xpath.append(qName.getLocalPart());
+			if (itr.hasNext())
+				xpath.append(" | "); // union operator
+		}
+		return xpath.toString();
+	}
+
+	/**
+	 * <p>
+	 * GetFileViaResourcePath.
+	 * </p>
+	 * @param resourcePath a {@link java.lang.String} object
+	 * @return a {@link java.io.File} object
+	 */
 	public File GetFileViaResourcePath(String resourcePath) {
 		try {
-        InputStream in = this.getClass().getResourceAsStream(resourcePath);
-        if (in == null) {
-            return null;
-        }
+			InputStream in = this.getClass().getResourceAsStream(resourcePath);
+			if (in == null) {
+				return null;
+			}
 
-        File tempFile = File.createTempFile(String.valueOf(in.hashCode()), ".tmp");
-        tempFile.deleteOnExit();
+			File tempFile = File.createTempFile(String.valueOf(in.hashCode()), ".tmp");
+			tempFile.deleteOnExit();
 
-        try (FileOutputStream out = new FileOutputStream(tempFile)) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-            }
-        }
-        return tempFile;
-    } catch (IOException e) {
+			try (FileOutputStream out = new FileOutputStream(tempFile)) {
+				byte[] buffer = new byte[1024];
+				int bytesRead;
+				while ((bytesRead = in.read(buffer)) != -1) {
+					out.write(buffer, 0, bytesRead);
+				}
+			}
+			return tempFile;
+		}
+		catch (IOException e) {
 			URL xsdPath = this.getClass().getResource(resourcePath);
 			File file = new File(xsdPath.toString().substring(5));
 			return file;
-    }
+		}
 	}
 
 	/**
 	 * Create Validator for checking XML file against XML Schema file
-	 * 
 	 * @param xsdPath URL path of the XSD file
 	 * @return schema validator
-	 * @throws XMLStreamException XMLStreamException
-	 * @throws IOException IOException
-	 * @throws SAXException SAX Error
+	 * @throws javax.xml.stream.XMLStreamException javax.xml.stream.XMLStreamException
+	 * @throws java.io.IOException java.io.IOException
+	 * @throws org.xml.sax.SAXException SAX Error
 	 */
 	public Validator CreateValidator(URL xsdPath) throws XMLStreamException, SAXException, IOException {
 		Schema schema;
@@ -244,21 +257,16 @@ public class DataFixture {
 	}
 
 	/**
-	 * Evaluates an XPath 2.0 expression using the Saxon s9api interfaces
-	 * modified version
-	 * 
-	 * @param xmlFile
-	 *            The XML file.
-	 * @param expr
-	 *            The XPath expression to be evaluated.
-	 * @param nsBindings
-	 *            A collection of namespace bindings required to evaluate the
-	 *            XPath expression, where each entry maps a namespace URI (key)
-	 *            to a prefix (value); this may be {@code null} if not needed.
-	 * @return An XdmValue object representing a value in the XDM data model;
-	 *         this is a sequence of zero or more items, where each item is
-	 *         either an atomic value or a node.
-	 * @throws SaxonApiException SaxonApiException
+	 * Evaluates an XPath 2.0 expression using the Saxon s9api interfaces modified version
+	 * @param xmlFile The XML file.
+	 * @param expr The XPath expression to be evaluated.
+	 * @param nsBindings A collection of namespace bindings required to evaluate the XPath
+	 * expression, where each entry maps a namespace URI (key) to a prefix (value); this
+	 * may be {@code null} if not needed.
+	 * @return An XdmValue object representing a value in the XDM data model; this is a
+	 * sequence of zero or more items, where each item is either an atomic value or a
+	 * node.
+	 * @throws net.sf.saxon.s9api.SaxonApiException net.sf.saxon.s9api.SaxonApiException
 	 */
 	public static XdmValue evaluateXPath2Modified(File xmlFile, String expr, Map<String, String> nsBindings)
 			throws SaxonApiException {
@@ -279,44 +287,36 @@ public class DataFixture {
 
 	/**
 	 * Check XPath2.0 modified version
-	 * 
-	 * @param xpath2
-	 *            String denoting an xpath syntax
-	 * @param xmlFile
-	 *            the File xml
+	 * @param xpath2 String denoting an xpath syntax
+	 * @param xmlFile the File xml
 	 * @return XdmValue converted to string
 	 */
 	public XdmValue CheckXPath2Modified(String xpath2, File xmlFile) {
 		XdmValue xdmValue = null;
 		try {
 			xdmValue = evaluateXPath2Modified(xmlFile, xpath2, NamespaceBindings.getStandardBindings());
-		} catch (SaxonApiException e) {
+		}
+		catch (SaxonApiException e) {
 			e.printStackTrace();
 		}
 		return xdmValue;
 	}
 
 	/**
-	 * Return <code>"true"</code> if candidate element node satisfy all three of
-	 * the following conditions: Condition 1: The name of the candidate node
-	 * matches the specified <code>nodeName</code> or matches the name of an
-	 * element in a substitution group headed by an element named
-	 * <code>nodeName</code>. Condition 2: derives-from(AT, ET) is true, where
-	 * AT is the type annotation of the candidate node and ET is the schema type
-	 * declared for element <code>nodeName</code> in the in-scope element
-	 * declarations. Condition 3: If the element declaration for
-	 * <code>nodeName</code> in the in-scope element declarations is not
-	 * nillable, then the nilled property of the <code>candidateNode</code> is
-	 * false
-	 * 
-	 * @param candidateNode
-	 *            the candidate node for testing
-	 * @param nodeName
-	 *            name of node for comparing
-	 * @param schemaFile
-	 *            the location of schema used for testing
+	 * Return <code>"true"</code> if candidate element node satisfy all three of the
+	 * following conditions: Condition 1: The name of the candidate node matches the
+	 * specified <code>nodeName</code> or matches the name of an element in a substitution
+	 * group headed by an element named <code>nodeName</code>. Condition 2:
+	 * derives-from(AT, ET) is true, where AT is the type annotation of the candidate node
+	 * and ET is the schema type declared for element <code>nodeName</code> in the
+	 * in-scope element declarations. Condition 3: If the element declaration for
+	 * <code>nodeName</code> in the in-scope element declarations is not nillable, then
+	 * the nilled property of the <code>candidateNode</code> is false
+	 * @param candidateNode the candidate node for testing
+	 * @param nodeName name of node for comparing
+	 * @param schemaFile the location of schema used for testing
 	 * @return return string value "true" or "false"
-	 * @throws SaxonApiException SaxonApiException
+	 * @throws net.sf.saxon.s9api.SaxonApiException net.sf.saxon.s9api.SaxonApiException
 	 */
 	public String SchemaElement(String candidateNode, String nodeName, File schemaFile) throws SaxonApiException {
 		// ---Test condition 1--- candidateNode matches the nodeName, or matches
@@ -335,7 +335,8 @@ public class DataFixture {
 					test1_result = "false";
 				}
 			}
-		} else {
+		}
+		else {
 			///// check whether or not "candidateNode" matches the name of an
 			///// element
 			///// in a substitution group headed by "nodeName".
@@ -351,7 +352,8 @@ public class DataFixture {
 				sub_name = result_xpath_t1_2.split("=")[1];
 				if (sub_name.equals(String.format("\"%s\"", nodeName))) {
 					break;
-				} else {
+				}
+				else {
 					if (sub_name.equals("\"gml:AbstractGML\"") || sub_name.equals("\"gml:AbstractObject\"")) {
 						test1_result = "false";
 						break;
@@ -362,7 +364,8 @@ public class DataFixture {
 					}
 					name = "\"".concat(sub_name.split(":")[1]);
 				}
-			} while (true);
+			}
+			while (true);
 		}
 
 		if (test1_result.equals("false")) {
@@ -417,23 +420,27 @@ public class DataFixture {
 				if (CheckXPath2Modified(xpath_t2_5, schemaFile).size() > 1) {
 					result_xpath_t2_5 = CheckXPath2Modified(xpath_t2_5, schemaFile).itemAt(0).getStringValue();
 					type_element = String.format("\"%s\"", result_xpath_t2_5);
-				} else if (CheckXPath2Modified(xpath_t2_5, schemaFile).size() == 1) {
+				}
+				else if (CheckXPath2Modified(xpath_t2_5, schemaFile).size() == 1) {
 					result_xpath_t2_5 = CheckXPath2Modified(xpath_t2_5, schemaFile).toString();
 					type_element = result_xpath_t2_5.split("=")[1];
-				} else {
+				}
+				else {
 					test2_result = "false";
 					break;
 				}
 				if (type_element.equals(String.format("%s", nodeName_type.split("=")[1]))) {
 					break;
-				} else {
+				}
+				else {
 					if (type_element.equals("\"gml:AbstractGMLType\"")) {
 						test2_result = "false";
 						break;
 					}
 					name_element = "\"".concat(type_element.split(":")[1]);
 				}
-			} while (true);
+			}
+			while (true);
 		}
 
 		if (test2_result.equals("false")) {
@@ -454,7 +461,8 @@ public class DataFixture {
 
 		if (result_xpath_t3_1.contains("XdmEmptySequence") && result_xpath_t3_2.contains("XdmEmptySequence")) {
 			test3_result = "true";
-		} else if (result_xpath_t3_1.equals(result_xpath_t3_2)) {
+		}
+		else if (result_xpath_t3_1.equals(result_xpath_t3_2)) {
 			test3_result = "true";
 		}
 
@@ -465,7 +473,8 @@ public class DataFixture {
 		String final_result = "";
 		if (test1_result.equals("true") && test2_result.equals("true") && test3_result.equals("true")) {
 			final_result = "true";
-		} else {
+		}
+		else {
 			final_result = "false";
 		}
 
@@ -474,12 +483,10 @@ public class DataFixture {
 
 	/**
 	 * Create validator from xsd file
-	 * 
-	 * @param xsdPath
-	 *            A URL that denotes the location of a XML schema.
-	 * @throws SAXException SAXException
-	 * @throws URISyntaxException URISyntaxException
-	 * @throws IOException IOException
+	 * @param xsdPath A URL that denotes the location of a XML schema.
+	 * @throws org.xml.sax.SAXException org.xml.sax.SAXException
+	 * @throws java.net.URISyntaxException java.net.URISyntaxException
+	 * @throws java.io.IOException java.io.IOException
 	 * @return schema validator
 	 */
 	public Validator CreateValidatorFromXSD(URL xsdPath) throws SAXException, IOException, URISyntaxException {
@@ -490,9 +497,7 @@ public class DataFixture {
 
 	/**
 	 * Check XPath2.0
-	 * 
-	 * @param xpath
-	 *            String denoting an xpath syntax
+	 * @param xpath String denoting an xpath syntax
 	 * @return XdmValue converted to string
 	 */
 	public String CheckXPath2(String xpath) {
@@ -500,28 +505,27 @@ public class DataFixture {
 		try {
 			xdmValue = XMLUtils.evaluateXPath2(new DOMSource(this.testSubject), xpath,
 					NamespaceBindings.getStandardBindings());
-		} catch (SaxonApiException e) {
+		}
+		catch (SaxonApiException e) {
 			e.printStackTrace();
-		};
+		}
+		;
 		return xdmValue.toString();
 	}
 
 	/**
-	 * Check Observation Type Measurement in schematron document
-	 * resultTypeConsistent.sch
-	 * 
-	 * @param href
-	 *            the value of om:type/xlink:href to make the context
+	 * Check Observation Type Measurement in schematron document resultTypeConsistent.sch
+	 * @param href the value of om:type/xlink:href to make the context
 	 * @return return list of values containing "true" or "false"
 	 */
 	public List<String> CheckObservationTypeMeasurement(String href) {
 		List<String> results = new ArrayList<String>();
 		String context = String.format("//om:OM_Observation[om:type/@xlink:href='%s']", href);
-	
+
 		int count_observation = Integer.parseInt((CheckXPath2(String.format("count(%s)", context))));
 		for (int i = 1; i <= count_observation; i++) {
-			String uom_value = String.format("(%s/om:result/@uom)[%s]", context,i);
-			String result_text = String.format("(%s/om:result/text())[%s]", context,i);
+			String uom_value = String.format("(%s/om:result/@uom)[%s]", context, i);
+			String result_text = String.format("(%s/om:result/text())[%s]", context, i);
 			String xpath = String.format(
 					"(((%s castable as xs:string) and (string-length(%s) > 0) and (not(matches(%s, \"[: \\n\\r\\t]+\"))))  or ((%s castable as xs:anyURI) and matches(%s , \"([a-zA-Z][a-zA-Z0-9\\-\\+\\.]*:|\\.\\./|\\./|#).*\"))) and (%s castable as xs:double)",
 					uom_value, uom_value, uom_value, uom_value, uom_value, result_text);
@@ -531,35 +535,35 @@ public class DataFixture {
 	}
 
 	/**
-	 * Check Observation Type Category in schematron document
-	 * resultTypeConsistent.sch
-	 * 
-	 * @param href
-	 *            the value of om:type/xlink:href to make the context
+	 * Check Observation Type Category in schematron document resultTypeConsistent.sch
+	 * @param href the value of om:type/xlink:href to make the context
 	 * @return return list of values containing "true" or "false"
 	 */
 	public List<String> CheckObservationTypeCategory(String href) {
-		List<String> results = new ArrayList<String>();	
+		List<String> results = new ArrayList<String>();
 		String context = String.format("//om:OM_Observation[om:type/@xlink:href='%s']", href);
 		int count_observation = Integer.parseInt((CheckXPath2(String.format("count(%s)", context))));
-		
+
 		for (int i = 1; i <= count_observation; i++) {
 			boolean test1 = true;
 			boolean test2 = false;
-			
+
 			if (CheckXPath2(String.format("(%s/om:result/@xlink:href)[%s]", context, i)).contains("XdmEmptySequence")
-					|| CheckXPath2(String.format("(%s/om:result/@xlink:title)[%s]", context, i)).contains("XdmEmptySequence")) {
+					|| CheckXPath2(String.format("(%s/om:result/@xlink:title)[%s]", context, i))
+						.contains("XdmEmptySequence")) {
 				test1 = false;
 			}
-			//the result cannot have any child element nor text
-			
+			// the result cannot have any child element nor text
+
 			if (CheckXPath2(String.format("(%s/om:result/*)[%s]", context, i)).contains("XdmEmptySequence")
-					&& CheckXPath2(String.format("(%s/om:result/text())[%s]", context, i)).contains("XdmEmptySequence")) {
+					&& CheckXPath2(String.format("(%s/om:result/text())[%s]", context, i))
+						.contains("XdmEmptySequence")) {
 				test2 = true;
 			}
 			if (test1 && test2) {
 				results.add("true");
-			} else {
+			}
+			else {
 				results.add("false");
 			}
 		}
@@ -567,11 +571,8 @@ public class DataFixture {
 	}
 
 	/**
-	 * Check Observation Type Count in schematron document
-	 * resultTypeConsistent.sch
-	 * 
-	 * @param href
-	 *            the value of om:type/xlink:href to make the context
+	 * Check Observation Type Count in schematron document resultTypeConsistent.sch
+	 * @param href the value of om:type/xlink:href to make the context
 	 * @return return list of values containing "true" or "false"
 	 */
 	public List<String> CheckObservationTypeCount(String href) {
@@ -585,32 +586,33 @@ public class DataFixture {
 	}
 
 	/**
-	 * Check Observation Type Truth in schematron document
-	 * resultTypeConsistent.sch
-	 * 
-	 * @param href
-	 *            the value of om:type/xlink:href to make the context
+	 * Check Observation Type Truth in schematron document resultTypeConsistent.sch
+	 * @param href the value of om:type/xlink:href to make the context
 	 * @return return list of values containing "true" or "false"
 	 */
 	public List<String> CheckObservationTypeTruth(String href) {
 		List<String> results = new ArrayList<String>();
 		String context = String.format("//om:OM_Observation[om:type/@xlink:href='%s']", href);
 		int count_observation = Integer.parseInt((CheckXPath2(String.format("count(%s)", context))));
-		for (int i = 1; i<= count_observation; i++) {
+		for (int i = 1; i <= count_observation; i++) {
 			results.add(CheckXPath2(String.format("(%s/om:result/text())[%s] castable as xs:boolean", context, i)));
 		}
 		return results;
 	}
-	
+
+	/**
+	 * <p>
+	 * GetResultTypeHref.
+	 * </p>
+	 * @return a {@link java.util.List} object
+	 */
 	public List<String> GetResultTypeHref() {
 		int count_observation = Integer.parseInt((CheckXPath2("count(//om:OM_Observation/om:type/@xlink:href)")));
 		List<String> list_href = new ArrayList<String>();
-		for (int i=1; i <= count_observation; i++ ) {
+		for (int i = 1; i <= count_observation; i++) {
 			list_href.add(CheckXPath2(String.format("string((//om:OM_Observation/om:type/@xlink:href)[%s])", i)));
 		}
 		return list_href;
 	}
-	
-	
 
 }
